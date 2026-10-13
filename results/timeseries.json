@@ -1,0 +1,2252 @@
+{
+ "meta": {
+  "seed": 115,
+  "seeds": {
+   "per_season_iid": "115 + (index in ALL_SEASONS - 10): 2005-06 -> 105 ... 2015-16 -> 115 ... 2025-26 -> 125 (identical to run_all.py's per-season seeds for 2015-16..2025-26)",
+   "pooled_bootstrap": "reuses the per-season iid replicates: pooled replicate b = replicate b of every season",
+   "crowd_bootstrap_E0": 415,
+   "crowd_bootstrap_D1": 416,
+   "crowd_bootstrap_SP1": 417,
+   "block_bootstrap": {
+    "2020-21": 515,
+    "2024-25": 516
+   },
+   "team_cluster_bootstrap": {
+    "2020-21": 525,
+    "2024-25": 526
+   },
+   "coverage": 615,
+   "cold_vs_warm": 715
+  },
+  "generated": "2026-10-13T16:40:20",
+  "runtime_seconds": 1013.2762677669525,
+  "n_boot": 2000,
+  "n_boot_pooled": 2000,
+  "n_boot_crowd": 2000,
+  "n_boot_block": 2000,
+  "n_sims_coverage": 500,
+  "n_boot_coverage": 200,
+  "n_sims_cold_vs_warm": 200,
+  "seasons": [
+   "2005-06",
+   "2006-07",
+   "2007-08",
+   "2008-09",
+   "2009-10",
+   "2010-11",
+   "2011-12",
+   "2012-13",
+   "2013-14",
+   "2014-15",
+   "2015-16",
+   "2016-17",
+   "2017-18",
+   "2018-19",
+   "2019-20",
+   "2020-21",
+   "2021-22",
+   "2022-23",
+   "2023-24",
+   "2024-25",
+   "2025-26"
+  ],
+  "description": "Workstream B: Premier League home advantage 2005-06..2025-26. Per-season Poisson gamma with bootstrap CIs and the goals-ratio identity check; common-gamma tests; crowd-status fits 2019-20..2021-22 (E0, D1, SP1); date-block and team-cluster bootstraps; CI coverage and cold-start recovery; fit diagnostics. Attendance is not in the data: crowd status is flagged from match dates.",
+  "identity": "For a double round robin with geometric-mean(alpha)=1, gamma_hat = sum home goals / sum away goals exactly, and extra home goals per match = mean H - mean A.",
+  "fit_diagnostics": {
+   "max_abs_theta": 3.238852464930853,
+   "max_proj_grad_norm": 0.018574333073019034,
+   "n_fits": 170937,
+   "n_not_converged": 0
+  }
+ },
+ "headline": {
+  "common_gamma_20_crowd_seasons": {
+   "est": 1.301312273106379,
+   "ci": [
+    1.2695875447962197,
+    1.3371245185101783
+   ],
+   "n": 7600,
+   "how": "pooled MLE, season-specific strengths and one shared gamma over the 20 seasons 2005-06..2025-26 except 2020-21 (= sum H / sum A); common-gamma interval: percentile CI from 2000 season-stratified bootstrap refits"
+  },
+  "common_gamma_21_seasons": {
+   "est": 1.2856843500968198,
+   "ci": [
+    1.2543052533692411,
+    1.3205162640126702
+   ],
+   "n": 7980,
+   "how": "as common_gamma_20_crowd_seasons but all 21 seasons; common-gamma interval"
+  },
+  "gamma_2020_21": {
+   "est": 1.0078430521155537,
+   "ci": [
+    0.883573122827174,
+    1.1433794252013705
+   ],
+   "n": 380,
+   "how": "per-season MLE (= sum H / sum A); percentile CI from 2000 iid match-bootstrap refits, seed 120"
+  },
+  "gamma_2024_25": {
+   "est": 1.0648148217578841,
+   "ci": [
+    0.9555666573761624,
+    1.1866099169000137
+   ],
+   "n": 380,
+   "how": "per-season MLE (= sum H / sum A); percentile CI from 2000 iid match-bootstrap refits, seed 124"
+  },
+  "extra_home_goals_2020_21": {
+   "est": 0.010526201831347077,
+   "ci": [
+    -0.17082171599909884,
+    0.18084866367150337
+   ],
+   "n": 380,
+   "how": "mean(lambda - lambda/gamma) = mean H - mean A (identity); percentile CI from 2000 iid bootstrap refits"
+  },
+  "extra_home_goals_2024_25": {
+   "est": 0.0921052728349746,
+   "ci": [
+    -0.06690744550681996,
+    0.25490716643905786
+   ],
+   "n": 380,
+   "how": "mean(lambda - lambda/gamma) = mean H - mean A (identity); percentile CI from 2000 iid bootstrap refits"
+  },
+  "extra_home_goals_common_20_crowd_seasons": {
+   "est": 0.35947349341518037,
+   "ci": [
+    0.32639236886643086,
+    0.39585937582419467
+   ],
+   "n": 7600,
+   "how": "pooled common-gamma fit, mean(lambda - lambda/gamma); season-stratified bootstrap percentile CI"
+  },
+  "identity_max_abs_gamma_minus_goals_ratio": {
+   "est": 3.529220746756323e-07,
+   "ci": [
+    6.943069230658239e-09,
+    3.529220746756323e-07
+   ],
+   "n": 21,
+   "how": "max over 21 seasons of |gamma_hat (L-BFGS-B) - sum home goals / sum away goals|; 'ci' is [min, max] over seasons, not a confidence interval; pooled fits: max 3.4e-07; extra-goals identity: max 3.8e-07"
+  },
+  "cochran_q_21_seasons": {
+   "est": 52.192542233675866,
+   "ci": [
+    9.590777392264867,
+    34.16960690283834
+   ],
+   "n": 20,
+   "how": "Cochran's Q on log gamma_hat with bootstrap SEs (2000 reps), df = n = 20, p = 0.0001; 'ci' is the central 95% range of chi2_20 under a common gamma"
+  },
+  "lr_common_gamma_21_seasons": {
+   "est": 51.21778510815784,
+   "ci": [
+    9.590777392264867,
+    34.16960690283834
+   ],
+   "n": 20,
+   "how": "2 x (sum of per-season log-likelihoods - pooled common-gamma log-likelihood), df = n = 20, p = 0.0001; 'ci' is the central 95% range of chi2_20 under H0"
+  },
+  "cochran_q_20_crowd_seasons": {
+   "est": 37.74194860958378,
+   "ci": [
+    8.906516481987971,
+    32.8523268617297
+   ],
+   "n": 19,
+   "how": "Cochran's Q on log gamma_hat with bootstrap SEs (2000 reps), df = n = 19, p = 0.0064; 'ci' is the central 95% range of chi2_19 under a common gamma"
+  },
+  "lr_common_gamma_20_crowd_seasons": {
+   "est": 35.335150291299215,
+   "ci": [
+    8.906516481987971,
+    32.8523268617297
+   ],
+   "n": 19,
+   "how": "2 x (sum of per-season log-likelihoods - pooled common-gamma log-likelihood), df = n = 19, p = 0.0127; 'ci' is the central 95% range of chi2_19 under H0"
+  },
+  "cochran_q_11_core_seasons": {
+   "est": 21.782803977986067,
+   "ci": [
+    3.246972780236841,
+    20.48317735080739
+   ],
+   "n": 10,
+   "how": "Cochran's Q on log gamma_hat with bootstrap SEs (2000 reps), df = n = 10, p = 0.0163; 'ci' is the central 95% range of chi2_10 under a common gamma"
+  },
+  "lr_common_gamma_11_core_seasons": {
+   "est": 22.035505688731064,
+   "ci": [
+    3.246972780236841,
+    20.48317735080739
+   ],
+   "n": 10,
+   "how": "2 x (sum of per-season log-likelihoods - pooled common-gamma log-likelihood), df = n = 10, p = 0.0149; 'ci' is the central 95% range of chi2_10 under H0"
+  },
+  "cochran_q_10_core_crowd_seasons": {
+   "est": 12.772203147089353,
+   "ci": [
+    2.7003894999803584,
+    19.02276779864163
+   ],
+   "n": 9,
+   "how": "Cochran's Q on log gamma_hat with bootstrap SEs (2000 reps), df = n = 9, p = 0.1732; 'ci' is the central 95% range of chi2_9 under a common gamma"
+  },
+  "lr_common_gamma_10_core_crowd_seasons": {
+   "est": 12.077420467947377,
+   "ci": [
+    2.7003894999803584,
+    19.02276779864163
+   ],
+   "n": 9,
+   "how": "2 x (sum of per-season log-likelihoods - pooled common-gamma log-likelihood), df = n = 9, p = 0.2090; 'ci' is the central 95% range of chi2_9 under H0"
+  },
+  "trend_log_gamma_per_season_20_crowd_seasons": {
+   "est": -0.009878417821769004,
+   "ci": [
+    -0.014211125061955907,
+    -0.005545710581582102
+   ],
+   "n": 20,
+   "how": "inverse-variance weighted regression of log gamma_hat on season start year (bootstrap SEs), SE inflated by sqrt(residual Q/df) if > 1; p = 7.9e-06; residual Q = 17.8 on 18 df (p = 0.471)"
+  },
+  "trend_log_gamma_per_season_10_core_crowd_seasons": {
+   "est": -0.009828965764192918,
+   "ci": [
+    -0.021970469555281483,
+    0.0023125380268956483
+   ],
+   "n": 10,
+   "how": "inverse-variance weighted regression of log gamma_hat on season start year (bootstrap SEs), SE inflated by sqrt(residual Q/df) if > 1; p = 0.11; residual Q = 9.7 on 8 df (p = 0.286)"
+  },
+  "dl_tau_20_crowd_seasons": {
+   "est": 0.06026245032911201,
+   "ci": [
+    0.02309549638551591,
+    0.10791327873680646
+   ],
+   "n": 20,
+   "how": "DerSimonian-Laird between-season SD of log gamma; 95% CI by the Q-profile method (Viechtbauer 2007)"
+  },
+  "dl_tau_21_seasons": {
+   "est": 0.07725277659770484,
+   "ci": [
+    0.04475616047410072,
+    0.13021518234908616
+   ],
+   "n": 21,
+   "how": "DerSimonian-Laird between-season SD of log gamma; 95% CI by the Q-profile method (Viechtbauer 2007)"
+  },
+  "dl_tau_10_core_crowd_seasons": {
+   "est": 0.03871554832672356,
+   "ci": [
+    0.0,
+    0.1142362137061158
+   ],
+   "n": 10,
+   "how": "DerSimonian-Laird between-season SD of log gamma; 95% CI by the Q-profile method (Viechtbauer 2007)"
+  },
+  "z_2020_21_common_gamma": {
+   "est": -3.80139364234909,
+   "ci": [
+    -5.7613936423490895,
+    -1.84139364234909
+   ],
+   "n": 20,
+   "how": "(log gamma_s - fixed-effect mean of 20 other crowd seasons) / sqrt(se_s^2 + se_mean^2), bootstrap SEs; p = 0.0001; 'ci' = z +- 1.96; ratio to common gamma 0.775 [0.679, 0.884]"
+  },
+  "z_2020_21_random_effects": {
+   "est": -2.8167370033891914,
+   "ci": [
+    -4.776737003389192,
+    -0.8567370033891915
+   ],
+   "n": 20,
+   "how": "(log gamma_s - DL random-effects mean of 20 other crowd seasons) / sqrt(se_s^2 + tau^2 + se_mean^2), tau = 0.0603; p = 0.0049; 'ci' = z +- 1.96"
+  },
+  "z_2020_21_vs_trend": {
+   "est": -3.02354264281793,
+   "ci": [
+    -4.98354264281793,
+    -1.06354264281793
+   ],
+   "n": 20,
+   "how": "(log gamma_s - linear-trend prediction for that season from the 20 other crowd seasons) / sqrt(se_s^2 + var(prediction)); trend-predicted gamma 1.238; p = 0.0025; 'ci' = z +- 1.96"
+  },
+  "z_2024_25_common_gamma": {
+   "est": -3.604973227236173,
+   "ci": [
+    -5.564973227236173,
+    -1.6449732272361732
+   ],
+   "n": 19,
+   "how": "(log gamma_s - fixed-effect mean of 19 other crowd seasons) / sqrt(se_s^2 + se_mean^2), bootstrap SEs; p = 0.0003; 'ci' = z +- 1.96; ratio to common gamma 0.809 [0.721, 0.908]"
+  },
+  "z_2024_25_random_effects": {
+   "est": -3.031545535658806,
+   "ci": [
+    -4.9915455356588065,
+    -1.0715455356588062
+   ],
+   "n": 19,
+   "how": "(log gamma_s - DL random-effects mean of 19 other crowd seasons) / sqrt(se_s^2 + tau^2 + se_mean^2), tau = 0.0373; p = 0.0024; 'ci' = z +- 1.96"
+  },
+  "z_2024_25_vs_trend": {
+   "est": -2.1446398744047634,
+   "ci": [
+    -4.104639874404763,
+    -0.18463987440476348
+   ],
+   "n": 19,
+   "how": "(log gamma_s - linear-trend prediction for that season from the 19 other crowd seasons) / sqrt(se_s^2 + var(prediction)); trend-predicted gamma 1.219; p = 0.0320; 'ci' = z +- 1.96"
+  },
+  "pearson_dispersion_pooled_21_seasons": {
+   "est": 0.9584643467481005,
+   "ci": [
+    0.8803293665957627,
+    1.0897219875704482
+   ],
+   "n": 21,
+   "how": "sum of Pearson X^2 over home and away goals / sum of (760 - 40) over 21 per-season fits; 'ci' is the [min, max] of the per-season dispersions; a Poisson season lies in [0.899, 1.106] with 95% probability (chi2_720/720)"
+  },
+  "crowd_gamma_full_e0": {
+   "est": 1.176481791989116,
+   "ci": [
+    1.0762996428906768,
+    1.282095223176941
+   ],
+   "n": 668,
+   "how": "crowd-status Poisson fit, season-specific strengths 2019-20..2021-22, one gamma per status; percentile CI from 2000 season-stratified bootstrap refits; status flagged by date (attendance not in data)"
+  },
+  "crowd_gamma_closed_e0": {
+   "est": 1.0689313564900411,
+   "ci": [
+    0.9567904438811826,
+    1.1920978751791866
+   ],
+   "n": 442,
+   "how": "crowd-status Poisson fit, season-specific strengths 2019-20..2021-22, one gamma per status; percentile CI from 2000 season-stratified bootstrap refits; status flagged by date (attendance not in data)"
+  },
+  "crowd_gamma_limited_e0": {
+   "est": 1.2726845609533213,
+   "ci": [
+    0.9413928026394932,
+    1.646197411281039
+   ],
+   "n": 30,
+   "how": "crowd-status Poisson fit, season-specific strengths 2019-20..2021-22, one gamma per status; percentile CI from 2000 season-stratified bootstrap refits; status flagged by date (attendance not in data)"
+  },
+  "crowd_gamma_closed_minus_full_e0": {
+   "est": -0.10755043549907484,
+   "ci": [
+    -0.2468883216718952,
+    0.03964899845400206
+   ],
+   "n": 442,
+   "how": "difference of the two gammas in the same crowd-status fit; percentile CI of the paired bootstrap differences (2000 season-stratified refits)"
+  },
+  "crowd_gamma_limited_minus_full_e0": {
+   "est": 0.09620276896420532,
+   "ci": [
+    -0.24960847726079438,
+    0.4824756424752799
+   ],
+   "n": 30,
+   "how": "difference of the two gammas in the same crowd-status fit; percentile CI of the paired bootstrap differences (2000 season-stratified refits)"
+  },
+  "crowd_gamma_restart_2019_20_minus_full_e0": {
+   "est": 0.07350586981891616,
+   "ci": [
+    -0.13974141280266386,
+    0.304423244900377
+   ],
+   "n": 92,
+   "how": "gamma(92 restart matches of 2019-20) - gamma(full crowds) in a 4-status fit; paired bootstrap percentile CI"
+  },
+  "crowd_gamma_closed_minus_fans_allowed_d1": {
+   "est": -0.09139008623307698,
+   "ci": [
+    -0.24746128300120238,
+    0.05853433934620034
+   ],
+   "n": 388,
+   "how": "Bundesliga 2019-20..2021-22, closed = restart to end of 2020-21, partial crowds not separated; paired season-stratified bootstrap (2000) percentile CI"
+  },
+  "crowd_gamma_closed_minus_fans_allowed_sp1": {
+   "est": -0.1895728862076831,
+   "ci": [
+    -0.33895862805887456,
+    -0.030753929736776313
+   ],
+   "n": 490,
+   "how": "La Liga 2019-20..2021-22, closed = restart to end of 2020-21, partial crowds not separated; paired season-stratified bootstrap (2000) percentile CI"
+  },
+  "ci_width_iid_2020_21": {
+   "est": 0.25980630237419644,
+   "ci": [
+    0.25187634961183547,
+    0.2679859179211348
+   ],
+   "n": 2000,
+   "how": "width of the 95% percentile interval of gamma, iid bootstrap (2000 refits); 'ci' is the approx Monte Carlo interval width*exp(+-1.96/sqrt(2(B-1)))"
+  },
+  "ci_width_date_block_38x10_2020_21": {
+   "est": 0.21916527704047917,
+   "ci": [
+    0.21247579230435615,
+    0.22606537026780726
+   ],
+   "n": 2000,
+   "how": "width of the 95% percentile interval of gamma, date_block_38x10 bootstrap (2000 refits); 'ci' is the approx Monte Carlo interval width*exp(+-1.96/sqrt(2(B-1)))"
+  },
+  "ci_width_team_cluster_home_2020_21": {
+   "est": 0.3363622675165304,
+   "ci": [
+    0.32609563091814275,
+    0.3469521339194591
+   ],
+   "n": 2000,
+   "how": "width of the 95% percentile interval of gamma, team_cluster_home bootstrap (2000 refits); 'ci' is the approx Monte Carlo interval width*exp(+-1.96/sqrt(2(B-1)))"
+  },
+  "ci_width_iid_2024_25": {
+   "est": 0.2310432595238513,
+   "ci": [
+    0.22399122838625712,
+    0.23831731338762047
+   ],
+   "n": 2000,
+   "how": "width of the 95% percentile interval of gamma, iid bootstrap (2000 refits); 'ci' is the approx Monte Carlo interval width*exp(+-1.96/sqrt(2(B-1)))"
+  },
+  "ci_width_date_block_38x10_2024_25": {
+   "est": 0.30030504051263285,
+   "ci": [
+    0.2911389626931111,
+    0.3097596986781733
+   ],
+   "n": 2000,
+   "how": "width of the 95% percentile interval of gamma, date_block_38x10 bootstrap (2000 refits); 'ci' is the approx Monte Carlo interval width*exp(+-1.96/sqrt(2(B-1)))"
+  },
+  "ci_width_team_cluster_home_2024_25": {
+   "est": 0.3040107924650053,
+   "ci": [
+    0.29473160561901734,
+    0.3135821207267125
+   ],
+   "n": 2000,
+   "how": "width of the 95% percentile interval of gamma, team_cluster_home bootstrap (2000 refits); 'ci' is the approx Monte Carlo interval width*exp(+-1.96/sqrt(2(B-1)))"
+  },
+  "ci_coverage_percentile": {
+   "est": 0.948,
+   "ci": [
+    0.9247336289697302,
+    0.9657543019172321
+   ],
+   "n": 500,
+   "how": "share of 500 simulated 2023-24-style seasons (truth gamma = 1.2171) whose 95% bootstrap percentile interval (200 refits) contains the truth; Clopper-Pearson 95% CI"
+  },
+  "ci_coverage_wald_log": {
+   "est": 0.95,
+   "ci": [
+    0.927072378349521,
+    0.9673848198506764
+   ],
+   "n": 500,
+   "how": "share of 500 simulated 2023-24-style seasons (truth gamma = 1.2171) whose 95% Wald on log gamma with bootstrap SE interval (200 refits) contains the truth; Clopper-Pearson 95% CI"
+  },
+  "ci_coverage_analytic": {
+   "est": 0.962,
+   "ci": [
+    0.94129270953628,
+    0.9769692291937525
+   ],
+   "n": 500,
+   "how": "share of 500 simulated 2023-24-style seasons (truth gamma = 1.2171) whose 95% analytic log(H/A) +- 1.96 sqrt(1/H + 1/A) interval (200 refits) contains the truth; Clopper-Pearson 95% CI"
+  },
+  "recovery_gamma_bias_warm_start": {
+   "est": 0.002107016517402638,
+   "ci": [
+    -0.007104913037596403,
+    0.011318946072401678
+   ],
+   "n": 200,
+   "how": "mean(gamma_hat) - true gamma over 200 simulated 2023-24 seasons, fit started at the truth; CI = bias +- 1.96 Monte Carlo SE"
+  },
+  "recovery_gamma_bias_cold_start": {
+   "est": 0.0021069928733261634,
+   "ci": [
+    -0.007104937321565924,
+    0.01131892306821825
+   ],
+   "n": 200,
+   "how": "same simulated seasons, fit started at the default x0 (strengths 0, gamma = mean H / mean A); max |gamma_cold - gamma_warm| = 6.2e-07"
+  },
+  "max_abs_theta_all_fits": {
+   "est": 3.238852464930853,
+   "ci": [
+    0.0,
+    3.238852464930853
+   ],
+   "n": 170937,
+   "how": "largest |log-parameter| over every fit in this script (n = number of fits); bound is +-5; 'ci' is [0, max]; no parameter within 1.76 of a bound"
+  },
+  "max_projected_gradient_norm_all_fits": {
+   "est": 0.018574333073019034,
+   "ci": [
+    0.0,
+    0.018574333073019034
+   ],
+   "n": 170937,
+   "how": "largest infinity-norm of the box-projected gradient of the negative log-likelihood at the returned optimum, over every fit; 'ci' is [0, max]"
+  }
+ },
+ "per_season": [
+  {
+   "season": "2005-06",
+   "n_matches": 380,
+   "gamma": 1.426734967320024,
+   "goals_ratio": 1.4267352185089974,
+   "identity_abs_diff": 2.5118897339915236e-07,
+   "gamma_lo": 1.260450185858493,
+   "gamma_hi": 1.6230368168489349,
+   "gamma_se": 0.09326967311847957,
+   "log_gamma_se_boot": 0.06495269673388525,
+   "log_gamma_se_analytic": 0.06612485076887055,
+   "gamma_lo_first500": 1.260067550069712,
+   "gamma_hi_first500": 1.629863935714801,
+   "ha_goals": 0.4368419952564157,
+   "mean_home_minus_away": 0.4368421052631579,
+   "ha_identity_abs_diff": 1.100067422155071e-07,
+   "ha_goals_lo": 0.2872657192025005,
+   "ha_goals_hi": 0.5896067071483139,
+   "mean_home_goals": 1.4605263157894737,
+   "mean_away_goals": 1.0236842105263158,
+   "pearson_dispersion": 0.9875359295160052,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1034.9689536713668,
+   "n_params": 40,
+   "max_abs_theta": 0.7488818066812585,
+   "proj_grad_norm": 8.921540672446326e-05,
+   "boot_max_abs_theta": 1.9204899272063463,
+   "boot_max_proj_grad_norm": 0.0005897713818932004,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 105
+  },
+  {
+   "season": "2006-07",
+   "n_matches": 380,
+   "gamma": 1.456464335008373,
+   "goals_ratio": 1.4564643799472297,
+   "identity_abs_diff": 4.493885663592323e-08,
+   "gamma_lo": 1.2968431350978897,
+   "gamma_hi": 1.6544941805637652,
+   "gamma_se": 0.09078899661180023,
+   "log_gamma_se_boot": 0.06194859130114929,
+   "log_gamma_se_analytic": 0.06670919449625504,
+   "gamma_lo_first500": 1.3004202822798805,
+   "gamma_hi_first500": 1.6518284159252739,
+   "ha_goals": 0.45526313179635225,
+   "mean_home_minus_away": 0.4552631578947369,
+   "ha_identity_abs_diff": 2.6098384675599107e-08,
+   "ha_goals_lo": 0.313948620549012,
+   "ha_goals_hi": 0.6010573508120443,
+   "mean_home_goals": 1.4526315789473685,
+   "mean_away_goals": 0.9973684210526316,
+   "pearson_dispersion": 0.8888177571488535,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1012.5014010707496,
+   "n_params": 40,
+   "max_abs_theta": 0.6833140031733632,
+   "proj_grad_norm": 1.1995085368976532e-05,
+   "boot_max_abs_theta": 2.033960594978327,
+   "boot_max_proj_grad_norm": 0.0004612109602888381,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 106
+  },
+  {
+   "season": "2007-08",
+   "n_matches": 380,
+   "gamma": 1.3800476535416686,
+   "goals_ratio": 1.3800475059382422,
+   "identity_abs_diff": 1.4760342637032409e-07,
+   "gamma_lo": 1.2260598530798041,
+   "gamma_hi": 1.5469805228830693,
+   "gamma_se": 0.08197958160993025,
+   "log_gamma_se_boot": 0.05910090585398243,
+   "log_gamma_se_analytic": 0.06400365073949459,
+   "gamma_lo_first500": 1.249006401519974,
+   "gamma_hi_first500": 1.5473712836859734,
+   "ha_goals": 0.421052756957602,
+   "mean_home_minus_away": 0.42105263157894735,
+   "ha_identity_abs_diff": 1.2537865468065235e-07,
+   "ha_goals_lo": 0.26623751049977495,
+   "ha_goals_hi": 0.5760386166856275,
+   "mean_home_goals": 1.5289473684210526,
+   "mean_away_goals": 1.1078947368421053,
+   "pearson_dispersion": 0.9993089697027394,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1047.4048392508194,
+   "n_params": 40,
+   "max_abs_theta": 0.829715371260595,
+   "proj_grad_norm": 2.0357403238913108e-05,
+   "boot_max_abs_theta": 1.8241947170705417,
+   "boot_max_proj_grad_norm": 0.0005673537792159067,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 107
+  },
+  {
+   "season": "2008-09",
+   "n_matches": 380,
+   "gamma": 1.297561123111189,
+   "goals_ratio": 1.2975609756097561,
+   "identity_abs_diff": 1.4750143284558703e-07,
+   "gamma_lo": 1.146903590136039,
+   "gamma_hi": 1.4794173900128438,
+   "gamma_se": 0.08364004005847073,
+   "log_gamma_se_boot": 0.06396603386751365,
+   "log_gamma_se_analytic": 0.0657169965713909,
+   "gamma_lo_first500": 1.148244363275547,
+   "gamma_hi_first500": 1.497656315951504,
+   "ha_goals": 0.3210527543916626,
+   "mean_home_minus_away": 0.32105263157894726,
+   "ha_identity_abs_diff": 1.2281271533076676e-07,
+   "ha_goals_lo": 0.1730803992276469,
+   "ha_goals_hi": 0.47557790876655565,
+   "mean_home_goals": 1.4,
+   "mean_away_goals": 1.0789473684210527,
+   "pearson_dispersion": 1.0075203195422906,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1037.6470024151722,
+   "n_params": 40,
+   "max_abs_theta": 0.6124031812860468,
+   "proj_grad_norm": 2.101611044480478e-05,
+   "boot_max_abs_theta": 1.7299288422830008,
+   "boot_max_proj_grad_norm": 0.0004759043532520657,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 108
+  },
+  {
+   "season": "2009-10",
+   "n_matches": 380,
+   "gamma": 1.5808820990464805,
+   "goals_ratio": 1.5808823529411764,
+   "identity_abs_diff": 2.538946959340649e-07,
+   "gamma_lo": 1.3967192976705363,
+   "gamma_hi": 1.7800080108857208,
+   "gamma_se": 0.09861444586781487,
+   "log_gamma_se_boot": 0.062283019909686814,
+   "log_gamma_se_analytic": 0.0632563671819374,
+   "gamma_lo_first500": 1.398383131936088,
+   "gamma_hi_first500": 1.791708669016864,
+   "ha_goals": 0.6236839414107063,
+   "mean_home_minus_away": 0.6236842105263158,
+   "ha_identity_abs_diff": 2.6911560957465497e-07,
+   "ha_goals_lo": 0.45812360620530485,
+   "ha_goals_hi": 0.7857321860960376,
+   "mean_home_goals": 1.6973684210526316,
+   "mean_away_goals": 1.0736842105263158,
+   "pearson_dispersion": 0.9370217403122783,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1057.4228429101618,
+   "n_params": 40,
+   "max_abs_theta": 0.714577442476411,
+   "proj_grad_norm": 9.998273839428862e-05,
+   "boot_max_abs_theta": 1.5890817854238164,
+   "boot_max_proj_grad_norm": 0.000418338846538191,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 109
+  },
+  {
+   "season": "2010-11",
+   "n_matches": 380,
+   "gamma": 1.3834078257749973,
+   "goals_ratio": 1.383408071748879,
+   "identity_abs_diff": 2.459738817073287e-07,
+   "gamma_lo": 1.2330352968515568,
+   "gamma_hi": 1.554956873136906,
+   "gamma_se": 0.08201347343664918,
+   "log_gamma_se_boot": 0.059167000438748854,
+   "log_gamma_se_analytic": 0.06215221644734377,
+   "gamma_lo_first500": 1.2363556594462977,
+   "gamma_hi_first500": 1.5648052995817872,
+   "ha_goals": 0.4499997864930299,
+   "mean_home_minus_away": 0.44999999999999996,
+   "ha_identity_abs_diff": 2.1350697004818286e-07,
+   "ha_goals_lo": 0.29105668114955935,
+   "ha_goals_hi": 0.6033027002161871,
+   "mean_home_goals": 1.6236842105263158,
+   "mean_away_goals": 1.1736842105263159,
+   "pearson_dispersion": 0.9182946093316332,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1082.9828366573845,
+   "n_params": 40,
+   "max_abs_theta": 0.5303183248931097,
+   "proj_grad_norm": 2.0934359463931074e-05,
+   "boot_max_abs_theta": 1.1926493756485763,
+   "boot_max_proj_grad_norm": 0.00042442170903100873,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 110
+  },
+  {
+   "season": "2011-12",
+   "n_matches": 380,
+   "gamma": 1.3073590285816579,
+   "goals_ratio": 1.3073593073593073,
+   "identity_abs_diff": 2.78777649409534e-07,
+   "gamma_lo": 1.1625128505264246,
+   "gamma_hi": 1.4856524677815965,
+   "gamma_se": 0.0830770179339456,
+   "log_gamma_se_boot": 0.0630170570202773,
+   "log_gamma_se_analytic": 0.06180721077329904,
+   "gamma_lo_first500": 1.167451050065253,
+   "gamma_hi_first500": 1.4856117114954137,
+   "ha_goals": 0.37368395243101776,
+   "mean_home_minus_away": 0.37368421052631584,
+   "ha_identity_abs_diff": 2.5809529807796494e-07,
+   "ha_goals_lo": 0.2080797291124215,
+   "ha_goals_hi": 0.5491513736669215,
+   "mean_home_goals": 1.5894736842105264,
+   "mean_away_goals": 1.2157894736842105,
+   "pearson_dispersion": 1.00785520075819,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1088.9910447708844,
+   "n_params": 40,
+   "max_abs_theta": 0.579561649141716,
+   "proj_grad_norm": 2.7654797088327854e-05,
+   "boot_max_abs_theta": 1.2749783530596324,
+   "boot_max_proj_grad_norm": 0.0006102069568321156,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 111
+  },
+  {
+   "season": "2012-13",
+   "n_matches": 380,
+   "gamma": 1.2569002399803544,
+   "goals_ratio": 1.256900212314225,
+   "identity_abs_diff": 2.7666129387426963e-08,
+   "gamma_lo": 1.1232929802922302,
+   "gamma_hi": 1.403962685094564,
+   "gamma_se": 0.07216275095290285,
+   "log_gamma_se_boot": 0.05750917154637237,
+   "log_gamma_se_analytic": 0.061744080199805186,
+   "gamma_lo_first500": 1.1374809447419045,
+   "gamma_hi_first500": 1.4006592540112708,
+   "ha_goals": 0.31842106048847946,
+   "mean_home_minus_away": 0.31842105263157894,
+   "ha_identity_abs_diff": 7.856900519076504e-09,
+   "ha_goals_lo": 0.16163150597767773,
+   "ha_goals_hi": 0.4682528689134045,
+   "mean_home_goals": 1.5578947368421052,
+   "mean_away_goals": 1.2394736842105263,
+   "pearson_dispersion": 0.9689814637331573,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1090.961451238171,
+   "n_params": 40,
+   "max_abs_theta": 0.5308695738828297,
+   "proj_grad_norm": 3.611564423611213e-05,
+   "boot_max_abs_theta": 1.2198784855617897,
+   "boot_max_proj_grad_norm": 0.0004076666088188574,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 112
+  },
+  {
+   "season": "2013-14",
+   "n_matches": 380,
+   "gamma": 1.317180464806688,
+   "goals_ratio": 1.3171806167400881,
+   "identity_abs_diff": 1.519334000832373e-07,
+   "gamma_lo": 1.1696466628186786,
+   "gamma_hi": 1.4962948462485728,
+   "gamma_se": 0.08357877273915033,
+   "log_gamma_se_boot": 0.0630747375066551,
+   "log_gamma_se_analytic": 0.06224856604357849,
+   "gamma_lo_first500": 1.1689218872851073,
+   "gamma_hi_first500": 1.4851805275863323,
+   "ha_goals": 0.3789472319487086,
+   "mean_home_minus_away": 0.3789473684210527,
+   "ha_identity_abs_diff": 1.3647234409219777e-07,
+   "ha_goals_lo": 0.2167135337793915,
+   "ha_goals_hi": 0.5505205138667287,
+   "mean_home_goals": 1.5736842105263158,
+   "mean_away_goals": 1.194736842105263,
+   "pearson_dispersion": 1.0232624812859445,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1083.8412626472063,
+   "n_params": 40,
+   "max_abs_theta": 0.7154665188997155,
+   "proj_grad_norm": 2.964260456028711e-05,
+   "boot_max_abs_theta": 1.4700049770042432,
+   "boot_max_proj_grad_norm": 0.0006684410204123026,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 113
+  },
+  {
+   "season": "2014-15",
+   "n_matches": 380,
+   "gamma": 1.3493975647202556,
+   "goals_ratio": 1.3493975903614457,
+   "identity_abs_diff": 2.564119006009946e-08,
+   "gamma_lo": 1.1996002186840198,
+   "gamma_hi": 1.5317263447691443,
+   "gamma_se": 0.08442363077495191,
+   "log_gamma_se_boot": 0.06216741140884068,
+   "log_gamma_se_analytic": 0.06477154344255781,
+   "gamma_lo_first500": 1.188076192990391,
+   "gamma_hi_first500": 1.5210790736543958,
+   "ha_goals": 0.3815789273225938,
+   "mean_home_minus_away": 0.381578947368421,
+   "ha_identity_abs_diff": 2.0045827220371848e-08,
+   "ha_goals_lo": 0.23074434187676052,
+   "ha_goals_hi": 0.540530779550336,
+   "mean_home_goals": 1.4736842105263157,
+   "mean_away_goals": 1.0921052631578947,
+   "pearson_dispersion": 0.9678476456544047,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1049.3815791373536,
+   "n_params": 40,
+   "max_abs_theta": 0.5641215530897884,
+   "proj_grad_norm": 2.46152204947947e-05,
+   "boot_max_abs_theta": 1.355790105311436,
+   "boot_max_proj_grad_norm": 0.0003928070107868109,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 114
+  },
+  {
+   "season": "2015-16",
+   "n_matches": 380,
+   "gamma": 1.2352942098957644,
+   "goals_ratio": 1.2352941176470589,
+   "identity_abs_diff": 9.224870556323594e-08,
+   "gamma_lo": 1.096254759685448,
+   "gamma_hi": 1.3948928599606616,
+   "gamma_se": 0.07456865645085184,
+   "log_gamma_se_boot": 0.06009737539607448,
+   "log_gamma_se_analytic": 0.06278787835090356,
+   "gamma_lo_first500": 1.094407832510984,
+   "gamma_hi_first500": 1.3807834445774039,
+   "ha_goals": 0.2842106248086259,
+   "mean_home_minus_away": 0.28421052631578947,
+   "ha_identity_abs_diff": 9.849283644225437e-08,
+   "ha_goals_lo": 0.1259188152117509,
+   "ha_goals_hi": 0.4433055399572216,
+   "mean_home_goals": 1.4921052631578948,
+   "mean_away_goals": 1.2078947368421054,
+   "pearson_dispersion": 0.982419669170939,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1082.6660158916984,
+   "n_params": 40,
+   "max_abs_theta": 0.5845250875854553,
+   "proj_grad_norm": 4.164656980942816e-05,
+   "boot_max_abs_theta": 1.3134962272721935,
+   "boot_max_proj_grad_norm": 0.0004437989879377824,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 115
+  },
+  {
+   "season": "2016-17",
+   "n_matches": 380,
+   "gamma": 1.3282276094479393,
+   "goals_ratio": 1.3282275711159737,
+   "identity_abs_diff": 3.833196560165675e-08,
+   "gamma_lo": 1.179538911705051,
+   "gamma_hi": 1.5039033622625813,
+   "gamma_se": 0.08067781266570265,
+   "log_gamma_se_boot": 0.060362648930252706,
+   "log_gamma_se_analytic": 0.06193246535888863,
+   "gamma_lo_first500": 1.1839089834156304,
+   "gamma_hi_first500": 1.5061178506457267,
+   "ha_goals": 0.39473688415930286,
+   "mean_home_minus_away": 0.39473684210526305,
+   "ha_identity_abs_diff": 4.205403980606093e-08,
+   "ha_goals_lo": 0.2335096701715652,
+   "ha_goals_hi": 0.5655280865789392,
+   "mean_home_goals": 1.5973684210526315,
+   "mean_away_goals": 1.2026315789473685,
+   "pearson_dispersion": 0.9410891164734408,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1072.1437585417582,
+   "n_params": 40,
+   "max_abs_theta": 0.6235169877137072,
+   "proj_grad_norm": 1.4296460327134497e-05,
+   "boot_max_abs_theta": 1.532891111206541,
+   "boot_max_proj_grad_norm": 0.00041334926209302125,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 116
+  },
+  {
+   "season": "2017-18",
+   "n_matches": 380,
+   "gamma": 1.334862369302417,
+   "goals_ratio": 1.334862385321101,
+   "identity_abs_diff": 1.6018683934859723e-08,
+   "gamma_lo": 1.1848013742077916,
+   "gamma_hi": 1.512306533690437,
+   "gamma_se": 0.08302264800929171,
+   "log_gamma_se_boot": 0.06177228858294608,
+   "log_gamma_se_analytic": 0.06333870096608092,
+   "gamma_lo_first500": 1.1959898290855746,
+   "gamma_hi_first500": 1.5038128309510295,
+   "ha_goals": 0.3842105161857287,
+   "mean_home_minus_away": 0.38421052631578956,
+   "ha_identity_abs_diff": 1.013006084571444e-08,
+   "ha_goals_lo": 0.2269131880036017,
+   "ha_goals_hi": 0.5452611998006405,
+   "mean_home_goals": 1.5315789473684212,
+   "mean_away_goals": 1.1473684210526316,
+   "pearson_dispersion": 0.9491627295599626,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1052.3376818300603,
+   "n_params": 40,
+   "max_abs_theta": 0.7823512763766977,
+   "proj_grad_norm": 4.0811942022767056e-05,
+   "boot_max_abs_theta": 1.8206657481529436,
+   "boot_max_proj_grad_norm": 0.00036058948147399406,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 117
+  },
+  {
+   "season": "2018-19",
+   "n_matches": 380,
+   "gamma": 1.2521007854464645,
+   "goals_ratio": 1.2521008403361344,
+   "identity_abs_diff": 5.488966992039934e-08,
+   "gamma_lo": 1.115289139418479,
+   "gamma_hi": 1.4015536525373793,
+   "gamma_se": 0.07241028567774742,
+   "log_gamma_se_boot": 0.05774480672776195,
+   "log_gamma_se_analytic": 0.06147107193735719,
+   "gamma_lo_first500": 1.1250641677806983,
+   "gamma_hi_first500": 1.3991793018547276,
+   "ha_goals": 0.3157894312529696,
+   "mean_home_minus_away": 0.3157894736842106,
+   "ha_identity_abs_diff": 4.243124102076834e-08,
+   "ha_goals_lo": 0.15441125776717154,
+   "ha_goals_hi": 0.47326588041521916,
+   "mean_home_goals": 1.568421052631579,
+   "mean_away_goals": 1.2526315789473683,
+   "pearson_dispersion": 0.9105077642216672,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1065.0769735866102,
+   "n_params": 40,
+   "max_abs_theta": 0.8156051201012982,
+   "proj_grad_norm": 4.344922918098071e-05,
+   "boot_max_abs_theta": 1.8262244130169782,
+   "boot_max_proj_grad_norm": 0.0006493127888269612,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 118
+  },
+  {
+   "season": "2019-20",
+   "n_matches": 380,
+   "gamma": 1.2576415684753053,
+   "goals_ratio": 1.25764192139738,
+   "identity_abs_diff": 3.529220746756323e-07,
+   "gamma_lo": 1.1164520635534079,
+   "gamma_hi": 1.4333858735800777,
+   "gamma_se": 0.08136649596624439,
+   "log_gamma_se_boot": 0.06428032823901621,
+   "log_gamma_se_analytic": 0.06260604782805115,
+   "gamma_lo_first500": 1.1065318018153891,
+   "gamma_hi_first500": 1.4469473574581273,
+   "ha_goals": 0.3105259355730726,
+   "mean_home_minus_away": 0.31052631578947376,
+   "ha_identity_abs_diff": 3.8021640114127564e-07,
+   "ha_goals_lo": 0.15072510021819105,
+   "ha_goals_hi": 0.47767656906740485,
+   "mean_home_goals": 1.5157894736842106,
+   "mean_away_goals": 1.2052631578947368,
+   "pearson_dispersion": 0.909626849851197,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1057.711758458186,
+   "n_params": 40,
+   "max_abs_theta": 0.7211898787857517,
+   "proj_grad_norm": 7.789329687568625e-05,
+   "boot_max_abs_theta": 1.948463865849828,
+   "boot_max_proj_grad_norm": 0.0005175232189840173,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 119
+  },
+  {
+   "season": "2020-21",
+   "n_matches": 380,
+   "gamma": 1.0078430521155537,
+   "goals_ratio": 1.007843137254902,
+   "identity_abs_diff": 8.513934823817237e-08,
+   "gamma_lo": 0.883573122827174,
+   "gamma_hi": 1.1433794252013705,
+   "gamma_se": 0.06625246635871845,
+   "log_gamma_se_boot": 0.06570581585905105,
+   "log_gamma_se_analytic": 0.06250047684261524,
+   "gamma_lo_first500": 0.8769311760617889,
+   "gamma_hi_first500": 1.1344542964720805,
+   "ha_goals": 0.010526201831347077,
+   "mean_home_minus_away": 0.010526315789473717,
+   "ha_identity_abs_diff": 1.1395812664002913e-07,
+   "ha_goals_lo": -0.17082171599909884,
+   "ha_goals_hi": 0.18084866367150337,
+   "mean_home_goals": 1.3526315789473684,
+   "mean_away_goals": 1.3421052631578947,
+   "pearson_dispersion": 1.0897219875704482,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1093.9166268263311,
+   "n_params": 40,
+   "max_abs_theta": 0.8717930362070319,
+   "proj_grad_norm": 0.00011021016641832304,
+   "boot_max_abs_theta": 1.642141530471615,
+   "boot_max_proj_grad_norm": 0.000621265797940751,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 120
+  },
+  {
+   "season": "2021-22",
+   "n_matches": 380,
+   "gamma": 1.159273982339707,
+   "goals_ratio": 1.159274193548387,
+   "identity_abs_diff": 2.112086801009383e-07,
+   "gamma_lo": 1.0331606366555022,
+   "gamma_hi": 1.308785003912244,
+   "gamma_se": 0.07122103886536299,
+   "log_gamma_se_boot": 0.061080877638287207,
+   "log_gamma_se_analytic": 0.06128017189140932,
+   "gamma_lo_first500": 1.0277709486174385,
+   "gamma_hi_first500": 1.3021736467327465,
+   "ha_goals": 0.2078944957875159,
+   "mean_home_minus_away": 0.20789473684210513,
+   "ha_identity_abs_diff": 2.4105458923395773e-07,
+   "ha_goals_lo": 0.046286172606429046,
+   "ha_goals_hi": 0.37616976819282383,
+   "mean_home_goals": 1.513157894736842,
+   "mean_away_goals": 1.305263157894737,
+   "pearson_dispersion": 0.9636189632178558,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1074.9666676659178,
+   "n_params": 40,
+   "max_abs_theta": 0.7573709504215507,
+   "proj_grad_norm": 3.224636587739749e-05,
+   "boot_max_abs_theta": 1.7198857438494497,
+   "boot_max_proj_grad_norm": 0.00045064899420044213,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 121
+  },
+  {
+   "season": "2022-23",
+   "n_matches": 380,
+   "gamma": 1.3412527624782071,
+   "goals_ratio": 1.3412526997840173,
+   "identity_abs_diff": 6.269418983961828e-08,
+   "gamma_lo": 1.1891500629794323,
+   "gamma_hi": 1.5203601365928443,
+   "gamma_se": 0.08517643484639767,
+   "log_gamma_se_boot": 0.06327032628482232,
+   "log_gamma_se_analytic": 0.06140141017887895,
+   "gamma_lo_first500": 1.189194836980547,
+   "gamma_hi_first500": 1.5081042252237822,
+   "ha_goals": 0.4157895330391971,
+   "mean_home_minus_away": 0.4157894736842107,
+   "ha_identity_abs_diff": 5.935498637033021e-08,
+   "ha_goals_lo": 0.24627899652127486,
+   "ha_goals_hi": 0.5832012358690859,
+   "mean_home_goals": 1.6342105263157896,
+   "mean_away_goals": 1.2184210526315788,
+   "pearson_dispersion": 1.0098648546987667,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1099.1223422833643,
+   "n_params": 40,
+   "max_abs_theta": 0.5840039029244398,
+   "proj_grad_norm": 2.786683465050288e-05,
+   "boot_max_abs_theta": 1.2137372056610753,
+   "boot_max_proj_grad_norm": 0.00044562690515981274,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 122
+  },
+  {
+   "season": "2023-24",
+   "n_matches": 380,
+   "gamma": 1.2170818962308059,
+   "goals_ratio": 1.217081850533808,
+   "identity_abs_diff": 4.5696997963418085e-08,
+   "gamma_lo": 1.0954080123291625,
+   "gamma_hi": 1.3644143273845066,
+   "gamma_se": 0.0687206672172021,
+   "log_gamma_se_boot": 0.05617277909854981,
+   "log_gamma_se_analytic": 0.05693283529474489,
+   "gamma_lo_first500": 1.0812191390118542,
+   "gamma_hi_first500": 1.3550622508279793,
+   "ha_goals": 0.32105269986401547,
+   "mean_home_minus_away": 0.3210526315789475,
+   "ha_identity_abs_diff": 6.828506798894907e-08,
+   "ha_goals_lo": 0.14922858256783494,
+   "ha_goals_hi": 0.5067986706583417,
+   "mean_home_goals": 1.8,
+   "mean_away_goals": 1.4789473684210526,
+   "pearson_dispersion": 0.8803293665957627,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1135.285382538262,
+   "n_params": 40,
+   "max_abs_theta": 0.8461860305195924,
+   "proj_grad_norm": 3.0454116196843017e-05,
+   "boot_max_abs_theta": 1.3691133192490081,
+   "boot_max_proj_grad_norm": 0.0004104721232600639,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 123
+  },
+  {
+   "season": "2024-25",
+   "n_matches": 380,
+   "gamma": 1.0648148217578841,
+   "goals_ratio": 1.0648148148148149,
+   "identity_abs_diff": 6.943069230658239e-09,
+   "gamma_lo": 0.9555666573761624,
+   "gamma_hi": 1.1866099169000137,
+   "gamma_se": 0.061038214763951916,
+   "log_gamma_se_boot": 0.05712732365733021,
+   "log_gamma_se_analytic": 0.05992480526989187,
+   "gamma_lo_first500": 0.9546559638268033,
+   "gamma_hi_first500": 1.1825519995465226,
+   "ha_goals": 0.0921052728349746,
+   "mean_home_minus_away": 0.09210526315789469,
+   "ha_identity_abs_diff": 9.677079915171305e-09,
+   "ha_goals_lo": -0.06690744550681996,
+   "ha_goals_hi": 0.25490716643905786,
+   "mean_home_goals": 1.513157894736842,
+   "mean_away_goals": 1.4210526315789473,
+   "pearson_dispersion": 0.9020466027463246,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1096.366180816607,
+   "n_params": 40,
+   "max_abs_theta": 0.722294318922576,
+   "proj_grad_norm": 6.385599824909605e-06,
+   "boot_max_abs_theta": 1.537753985037812,
+   "boot_max_proj_grad_norm": 0.00039412759729806623,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 124
+  },
+  {
+   "season": "2025-26",
+   "n_matches": 380,
+   "gamma": 1.2473118705727255,
+   "goals_ratio": 1.2473118279569892,
+   "identity_abs_diff": 4.261573627317716e-08,
+   "gamma_lo": 1.1209507451539018,
+   "gamma_hi": 1.4073283557590992,
+   "gamma_se": 0.07237832973315277,
+   "log_gamma_se_boot": 0.05753320931346544,
+   "log_gamma_se_analytic": 0.06224689201432538,
+   "gamma_lo_first500": 1.128209592019529,
+   "gamma_hi_first500": 1.4076111897026906,
+   "ha_goals": 0.3026316307431193,
+   "mean_home_minus_away": 0.3026315789473686,
+   "ha_identity_abs_diff": 5.179575068847697e-08,
+   "ha_goals_lo": 0.15758169276108405,
+   "ha_goals_hi": 0.4611367376800253,
+   "mean_home_goals": 1.5263157894736843,
+   "mean_away_goals": 1.2236842105263157,
+   "pearson_dispersion": 0.8829172606182497,
+   "dispersion_poisson_lo": 0.899356443848963,
+   "dispersion_poisson_hi": 1.1059044649651328,
+   "loglik": -1072.6990155018232,
+   "n_params": 40,
+   "max_abs_theta": 0.5257083724215699,
+   "proj_grad_norm": 1.9140834067954415e-05,
+   "boot_max_abs_theta": 1.4241755246325165,
+   "boot_max_proj_grad_norm": 0.00029523752776228207,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "seed": 125
+  }
+ ],
+ "pooled_common_gamma": {
+  "all_21_seasons": {
+   "seasons": [
+    "2005-06",
+    "2006-07",
+    "2007-08",
+    "2008-09",
+    "2009-10",
+    "2010-11",
+    "2011-12",
+    "2012-13",
+    "2013-14",
+    "2014-15",
+    "2015-16",
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ],
+   "n_matches": 7980,
+   "gamma": 1.2856843500968198,
+   "goals_ratio": 1.285684452333716,
+   "identity_abs_diff": 1.022368962821929e-07,
+   "gamma_ci": [
+    1.2543052533692411,
+    1.3205162640126702
+   ],
+   "gamma_se": 0.016862945885166156,
+   "ha_goals": 0.3428570449340964,
+   "ha_goals_ci": [
+    0.30952685990700124,
+    0.37912653476147756
+   ],
+   "loglik": -22514.00451026397,
+   "n_params": 820,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "label": "common-gamma interval: assumes one gamma for every season in the set"
+  },
+  "crowd_20_seasons": {
+   "seasons": [
+    "2005-06",
+    "2006-07",
+    "2007-08",
+    "2008-09",
+    "2009-10",
+    "2010-11",
+    "2011-12",
+    "2012-13",
+    "2013-14",
+    "2014-15",
+    "2015-16",
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ],
+   "n_matches": 7600,
+   "gamma": 1.301312273106379,
+   "goals_ratio": 1.3013124517480974,
+   "identity_abs_diff": 1.7864171830694886e-07,
+   "gamma_ci": [
+    1.2695875447962197,
+    1.3371245185101783
+   ],
+   "gamma_se": 0.01749973055224229,
+   "ha_goals": 0.35947349341518037,
+   "ha_goals_ci": [
+    0.32639236886643086,
+    0.39585937582419467
+   ],
+   "loglik": -21412.14656602921,
+   "n_params": 781,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "label": "common-gamma interval: assumes one gamma for every season in the set"
+  },
+  "core_11_seasons": {
+   "seasons": [
+    "2015-16",
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ],
+   "n_matches": 4180,
+   "gamma": 1.2170237175792131,
+   "goals_ratio": 1.2170236753100339,
+   "identity_abs_diff": 4.2269179267862e-08,
+   "gamma_ci": [
+    1.1742190939932138,
+    1.2636754565186974
+   ],
+   "gamma_se": 0.022456684245068425,
+   "ha_goals": 0.2763157949371476,
+   "ha_goals_ci": [
+    0.2269157938434557,
+    0.3276677622776054
+   ],
+   "loglik": -11913.310156784984,
+   "n_params": 430,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "label": "common-gamma interval: assumes one gamma for every season in the set"
+  },
+  "core_crowd_10_seasons": {
+   "seasons": [
+    "2015-16",
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ],
+   "n_matches": 3800,
+   "gamma": 1.239194024631984,
+   "goals_ratio": 1.2391936824605154,
+   "identity_abs_diff": 3.421714684925803e-07,
+   "gamma_ci": [
+    1.1947605823567737,
+    1.2878823885906585
+   ],
+   "gamma_se": 0.023733727506676416,
+   "ha_goals": 0.30289507659519405,
+   "ha_goals_ci": [
+    0.25142688915207156,
+    0.3554309075299381
+   ],
+   "loglik": -10814.41448734826,
+   "n_params": 391,
+   "n_boot": 2000,
+   "n_boot_converged": 2000,
+   "label": "common-gamma interval: assumes one gamma for every season in the set"
+  }
+ },
+ "common_gamma_tests": {
+  "all_21_seasons": {
+   "k": 21,
+   "cochran_Q": 52.192542233675866,
+   "Q_df": 20,
+   "Q_p": 0.00010672632694166575,
+   "I2": 0.6168034906125817,
+   "Q_95_range_under_homogeneity": [
+    9.590777392264867,
+    34.16960690283834
+   ],
+   "LR": 51.21778510815784,
+   "LR_df": 20,
+   "LR_p": 0.000147914445522103,
+   "fe_gamma": 1.2871463624974826,
+   "fe_gamma_ci": [
+    1.2540641494952427,
+    1.3211012842982044
+   ],
+   "dl_tau": 0.07725277659770484,
+   "dl_tau_ci": [
+    0.04475616047410072,
+    0.13021518234908616
+   ],
+   "re_gamma": 1.2885866132866837,
+   "re_gamma_ci": [
+    1.2354526346662122,
+    1.344005762220304
+   ],
+   "re_prediction_interval_one_season": [
+    1.1011822484901874,
+    1.5078843326963072
+   ],
+   "pooled_mle_gamma": 1.2856843500968198,
+   "pooled_mle_gamma_ci": [
+    1.2543052533692411,
+    1.3205162640126702
+   ],
+   "trend_slope_log_gamma_per_season": -0.01096604194225385,
+   "trend_slope_ci": [
+    -0.016054026618279198,
+    -0.005878057266228502
+   ],
+   "trend_slope_p": 2.3962843592532437e-05,
+   "trend_residual_Q": 26.91421069256149,
+   "trend_residual_df": 19,
+   "trend_residual_p": 0.10666725739275468
+  },
+  "crowd_20_seasons": {
+   "k": 20,
+   "cochran_Q": 37.74194860958378,
+   "Q_df": 19,
+   "Q_p": 0.00639967380559343,
+   "I2": 0.49658137165775945,
+   "Q_95_range_under_homogeneity": [
+    8.906516481987971,
+    32.8523268617297
+   ],
+   "LR": 35.335150291299215,
+   "LR_df": 19,
+   "LR_p": 0.01272337189542314,
+   "fe_gamma": 1.300636017039798,
+   "fe_gamma_ci": [
+    1.2665114682471665,
+    1.3356800086164036
+   ],
+   "dl_tau": 0.06026245032911201,
+   "dl_tau_ci": [
+    0.02309549638551591,
+    0.10791327873680646
+   ],
+   "re_gamma": 1.3029910033741345,
+   "re_gamma_ci": [
+    1.255020642503448,
+    1.3527949241434643
+   ],
+   "re_prediction_interval_one_season": [
+    1.1511193690173445,
+    1.4748996503492526
+   ],
+   "pooled_mle_gamma": 1.301312273106379,
+   "pooled_mle_gamma_ci": [
+    1.2695875447962197,
+    1.3371245185101783
+   ],
+   "trend_slope_log_gamma_per_season": -0.009878417821769004,
+   "trend_slope_ci": [
+    -0.014211125061955907,
+    -0.005545710581582102
+   ],
+   "trend_slope_p": 7.86853670167455e-06,
+   "trend_residual_Q": 17.77240057962305,
+   "trend_residual_df": 18,
+   "trend_residual_p": 0.47073830567710073
+  },
+  "core_11_seasons": {
+   "k": 11,
+   "cochran_Q": 21.782803977986067,
+   "Q_df": 10,
+   "Q_p": 0.016250129976979263,
+   "I2": 0.5409222793307003,
+   "Q_95_range_under_homogeneity": [
+    3.246972780236841,
+    20.48317735080739
+   ],
+   "LR": 22.035505688731064,
+   "LR_df": 10,
+   "LR_p": 0.01492473984752463,
+   "fe_gamma": 1.2181799484108242,
+   "fe_gamma_ci": [
+    1.1755689534971354,
+    1.2623354693875166
+   ],
+   "dl_tau": 0.06543192211770232,
+   "dl_tau_ci": [
+    0.015559313231636795,
+    0.1483431217801798
+   ],
+   "re_gamma": 1.2181083036956712,
+   "re_gamma_ci": [
+    1.1556613302244676,
+    1.2839296433360325
+   ],
+   "re_prediction_interval_one_season": [
+    1.0604302571703348,
+    1.3992318962038142
+   ],
+   "pooled_mle_gamma": 1.2170237175792131,
+   "pooled_mle_gamma_ci": [
+    1.1742190939932138,
+    1.2636754565186974
+   ],
+   "trend_slope_log_gamma_per_season": -0.00965724576429667,
+   "trend_slope_ci": [
+    -0.02559371621636658,
+    0.006279224687773241
+   ],
+   "trend_slope_p": 0.23494035324083717,
+   "trend_residual_Q": 18.83113051653048,
+   "trend_residual_df": 9,
+   "trend_residual_p": 0.026667660384773553
+  },
+  "core_crowd_10_seasons": {
+   "k": 10,
+   "cochran_Q": 12.772203147089353,
+   "Q_df": 9,
+   "Q_p": 0.17318762712155675,
+   "I2": 0.2953447501302074,
+   "Q_95_range_under_homogeneity": [
+    2.7003894999803584,
+    19.02276779864163
+   ],
+   "LR": 12.077420467947377,
+   "LR_df": 9,
+   "LR_p": 0.20897982404320836,
+   "fe_gamma": 1.2374413846042889,
+   "fe_gamma_ci": [
+    1.1924333032086225,
+    1.284148284194204
+   ],
+   "dl_tau": 0.03871554832672356,
+   "dl_tau_ci": [
+    0.0,
+    0.1142362137061158
+   ],
+   "re_gamma": 1.2385124155372569,
+   "re_gamma_ci": [
+    1.1849907643208835,
+    1.2944514418380415
+   ],
+   "re_prediction_interval_one_season": [
+    1.1344027115423796,
+    1.3521767779930292
+   ],
+   "pooled_mle_gamma": 1.239194024631984,
+   "pooled_mle_gamma_ci": [
+    1.1947605823567737,
+    1.2878823885906585
+   ],
+   "trend_slope_log_gamma_per_season": -0.009828965764192918,
+   "trend_slope_ci": [
+    -0.021970469555281483,
+    0.0023125380268956483
+   ],
+   "trend_slope_p": 0.11258342756782398,
+   "trend_residual_Q": 9.714939238081325,
+   "trend_residual_df": 8,
+   "trend_residual_p": 0.28560618686155803
+  }
+ },
+ "season_z": [
+  {
+   "set": "all_21_seasons",
+   "season": "2020-21",
+   "gamma": 1.0078430521155537,
+   "reference": "20 seasons of all_21_seasons excluding 2020-21",
+   "z_common": -3.80139364234909,
+   "p_common_two_sided": 0.00014388449983169735,
+   "z_random": -2.8167370033891914,
+   "p_random_two_sided": 0.004851423400117828,
+   "ratio_to_common": 0.7748847786095985,
+   "ratio_to_common_ci": [
+    0.6794034568305779,
+    0.8837847586497916
+   ],
+   "ratio_to_re_mean": 0.7734842754138085,
+   "ratio_to_re_mean_ci": [
+    0.6468915899538235,
+    0.9248503668986185
+   ],
+   "ref_fe_gamma": 1.300636017039798,
+   "ref_re_gamma": 1.3029910033741345,
+   "ref_tau": 0.06026245032911201,
+   "n_ref": 20,
+   "z_trend": -3.02354264281793,
+   "p_trend_two_sided": 0.0024983381648350043,
+   "trend_predicted_gamma": 1.2378878595220408,
+   "ratio_to_trend": 0.8141634513684386,
+   "ratio_to_trend_ci": [
+    0.7125752585443981,
+    0.9302345508012994
+   ]
+  },
+  {
+   "set": "all_21_seasons",
+   "season": "2024-25",
+   "gamma": 1.0648148217578841,
+   "reference": "19 seasons of all_21_seasons excluding 2020-21 and 2024-25",
+   "z_common": -3.604973227236173,
+   "p_common_two_sided": 0.00031218510967186787,
+   "z_random": -3.031545535658806,
+   "p_random_two_sided": 0.002433052192576992,
+   "ratio_to_common": 0.8089599423238649,
+   "ratio_to_common_ci": [
+    0.7208875872919075,
+    0.9077922824875045
+   ],
+   "ratio_to_re_mean": 0.8084265511220006,
+   "ratio_to_re_mean_ci": [
+    0.7045745834123103,
+    0.9275859560442863
+   ],
+   "ref_fe_gamma": 1.3162763272295481,
+   "ref_re_gamma": 1.317144792288238,
+   "ref_tau": 0.037270947450527524,
+   "n_ref": 19,
+   "z_trend": -2.1446398744047634,
+   "p_trend_two_sided": 0.031981651593460565,
+   "trend_predicted_gamma": 1.2188637314932658,
+   "ratio_to_trend": 0.873612688805949,
+   "ratio_to_trend_ci": [
+    0.7721291238351258,
+    0.9884345849460889
+   ]
+  },
+  {
+   "set": "core_11_seasons",
+   "season": "2020-21",
+   "gamma": 1.0078430521155537,
+   "reference": "10 seasons of core_11_seasons excluding 2020-21",
+   "z_common": -3.001766285188891,
+   "p_common_two_sided": 0.0026841816607377513,
+   "z_random": -2.5916360756730805,
+   "p_random_two_sided": 0.00955207573360202,
+   "ratio_to_common": 0.8144572055328855,
+   "ratio_to_common_ci": [
+    0.7123112517317257,
+    0.9312509637209375
+   ],
+   "ratio_to_re_mean": 0.8137528856974433,
+   "ratio_to_re_mean_ci": [
+    0.6963056649416519,
+    0.9510101559153706
+   ],
+   "ref_fe_gamma": 1.2374413846042889,
+   "ref_re_gamma": 1.2385124155372569,
+   "ref_tau": 0.03871554832672356,
+   "n_ref": 10,
+   "z_trend": -2.9948357989248287,
+   "p_trend_two_sided": 0.002745926186855467,
+   "trend_predicted_gamma": 1.2389390678441323,
+   "ratio_to_trend": 0.81347265436491,
+   "ratio_to_trend_ci": [
+    0.7106667849128007,
+    0.9311505384069526
+   ]
+  },
+  {
+   "set": "core_11_seasons",
+   "season": "2024-25",
+   "gamma": 1.0648148217578841,
+   "reference": "9 seasons of core_11_seasons excluding 2020-21 and 2024-25",
+   "z_common": -2.7869967930079103,
+   "p_common_two_sided": 0.00531990054705688,
+   "z_random": -2.7869967930079103,
+   "p_random_two_sided": 0.00531990054705688,
+   "ratio_to_common": 0.8447472788899473,
+   "ratio_to_common_ci": [
+    0.7502331577094531,
+    0.9511682573063898
+   ],
+   "ratio_to_re_mean": 0.8447472788899473,
+   "ratio_to_re_mean_ci": [
+    0.7502331577094531,
+    0.9511682573063898
+   ],
+   "ref_fe_gamma": 1.260512875705406,
+   "ref_re_gamma": 1.260512875705406,
+   "ref_tau": 0.0,
+   "n_ref": 9,
+   "z_trend": -2.274264532811642,
+   "p_trend_two_sided": 0.022950086268374182,
+   "trend_predicted_gamma": 1.2377904555118606,
+   "ratio_to_trend": 0.8602545099748354,
+   "ratio_to_trend_ci": [
+    0.7555920061562051,
+    0.9794145728151797
+   ]
+  }
+ ],
+ "crowd": {
+  "E0_main": {
+   "groups": {
+    "full": {
+     "gamma": 1.176481791989116,
+     "gamma_ci": [
+      1.0762996428906768,
+      1.282095223176941
+     ],
+     "n_matches": 668,
+     "raw_goals_ratio": 1.1926713947990544
+    },
+    "closed": {
+     "gamma": 1.0689313564900411,
+     "gamma_ci": [
+      0.9567904438811826,
+      1.1920978751791866
+     ],
+     "n_matches": 442,
+     "raw_goals_ratio": 1.0429553264604812
+    },
+    "limited": {
+     "gamma": 1.2726845609533213,
+     "gamma_ci": [
+      0.9413928026394932,
+      1.646197411281039
+     ],
+     "n_matches": 30,
+     "raw_goals_ratio": 1.3611111111111112
+    }
+   },
+   "differences": {
+    "closed_minus_full": {
+     "est": -0.10755043549907484,
+     "ci": [
+      -0.2468883216718952,
+      0.03964899845400206
+     ],
+     "share_boot_below_0": 0.925
+    },
+    "limited_minus_full": {
+     "est": 0.09620276896420532,
+     "ci": [
+      -0.24960847726079438,
+      0.4824756424752799
+     ],
+     "share_boot_below_0": 0.284
+    }
+   },
+   "loglik": -3228.270941147045,
+   "converged": true,
+   "n_boot": 2000,
+   "n_boot_converged": 2000
+  },
+  "E0_dec2020_date_only": {
+   "groups": {
+    "full": {
+     "gamma": 1.1768144100546545,
+     "gamma_ci": [
+      1.076380694167558,
+      1.2817836669415659
+     ],
+     "n_matches": 668,
+     "raw_goals_ratio": 1.1926713947990544
+    },
+    "closed": {
+     "gamma": 1.0720416123483112,
+     "gamma_ci": [
+      0.9570532424399413,
+      1.1932254074378381
+     ],
+     "n_matches": 431,
+     "raw_goals_ratio": 1.0440140845070423
+    },
+    "limited": {
+     "gamma": 1.1786625746430146,
+     "gamma_ci": [
+      0.9157434749401651,
+      1.526520341823288
+     ],
+     "n_matches": 41,
+     "raw_goals_ratio": 1.26
+    }
+   },
+   "differences": {
+    "closed_minus_full": {
+     "est": -0.10477279770634329,
+     "ci": [
+      -0.24378974670700523,
+      0.0418434981256389
+     ],
+     "share_boot_below_0": 0.922
+    },
+    "limited_minus_full": {
+     "est": 0.0018481645883601239,
+     "ci": [
+      -0.27777208593280284,
+      0.3563728125736535
+     ],
+     "share_boot_below_0": 0.489
+    }
+   },
+   "loglik": -3228.672438952165,
+   "converged": true,
+   "n_boot": 2000,
+   "n_boot_converged": 2000
+  },
+  "E0_restart_split": {
+   "groups": {
+    "full": {
+     "gamma": 1.1978934942516166,
+     "gamma_ci": [
+      1.0933591281736694,
+      1.3076361500344094
+     ],
+     "n_matches": 668,
+     "raw_goals_ratio": 1.1926713947990544
+    },
+    "closed_restart_2019_20": {
+     "gamma": 1.2713993640705328,
+     "gamma_ci": [
+      1.0553581492803747,
+      1.5244829902779593
+     ],
+     "n_matches": 92,
+     "raw_goals_ratio": 1.3148148148148149
+    },
+    "closed": {
+     "gamma": 0.9892849203938857,
+     "gamma_ci": [
+      0.8668946256354498,
+      1.1257378032629837
+     ],
+     "n_matches": 350,
+     "raw_goals_ratio": 0.9810126582278481
+    },
+    "limited": {
+     "gamma": 1.2261222642542622,
+     "gamma_ci": [
+      0.9039182357928903,
+      1.6009863906513473
+     ],
+     "n_matches": 30,
+     "raw_goals_ratio": 1.3611111111111112
+    }
+   },
+   "differences": {
+    "closed_restart_2019_20_minus_full": {
+     "est": 0.07350586981891616,
+     "ci": [
+      -0.13974141280266386,
+      0.304423244900377
+     ],
+     "share_boot_below_0": 0.26
+    },
+    "closed_minus_full": {
+     "est": -0.2086085738577309,
+     "ci": [
+      -0.36658679102223335,
+      -0.03341620381728245
+     ],
+     "share_boot_below_0": 0.9895
+    },
+    "limited_minus_full": {
+     "est": 0.028228770002645565,
+     "ci": [
+      -0.3084901456410177,
+      0.41670072715174444
+     ],
+     "share_boot_below_0": 0.425
+    }
+   },
+   "loglik": -3225.8757440407794,
+   "converged": true,
+   "n_boot": 2000,
+   "n_boot_converged": 2000
+  },
+  "E0_two_status": {
+   "groups": {
+    "full": {
+     "gamma": 1.1833229298279253,
+     "gamma_ci": [
+      1.0854064071010825,
+      1.2854381764810867
+     ],
+     "n_matches": 698,
+     "raw_goals_ratio": 1.199546485260771
+    },
+    "closed": {
+     "gamma": 1.0650851698523982,
+     "gamma_ci": [
+      0.9553602278382457,
+      1.1842592956374236
+     ],
+     "n_matches": 442,
+     "raw_goals_ratio": 1.0429553264604812
+    }
+   },
+   "differences": {
+    "closed_minus_full": {
+     "est": -0.1182377599755271,
+     "ci": [
+      -0.24911199147763105,
+      0.017481064668598282
+     ],
+     "share_boot_below_0": 0.9575
+    }
+   },
+   "loglik": -3228.3968204638795,
+   "converged": true,
+   "n_boot": 2000,
+   "n_boot_converged": 2000
+  },
+  "E0_counts_by_season": {
+   "2019-20": {
+    "closed": 92,
+    "full": 288,
+    "limited": 0
+   },
+   "2020-21": {
+    "closed": 350,
+    "full": 0,
+    "limited": 30
+   },
+   "2021-22": {
+    "closed": 0,
+    "full": 380,
+    "limited": 0
+   }
+  },
+  "other_leagues": {
+   "D1": {
+    "groups": {
+     "full": {
+      "gamma": 1.2349301767203766,
+      "gamma_ci": [
+       1.125059793257559,
+       1.3536759945421855
+      ],
+      "n_matches": 530,
+      "raw_goals_ratio": 1.2367021276595744
+     },
+     "closed": {
+      "gamma": 1.1435400904872997,
+      "gamma_ci": [
+       1.0248499002176317,
+       1.2675068066091393
+      ],
+      "n_matches": 388,
+      "raw_goals_ratio": 1.141304347826087
+     }
+    },
+    "differences": {
+     "closed_minus_full": {
+      "est": -0.09139008623307698,
+      "ci": [
+       -0.24746128300120238,
+       0.05853433934620034
+      ],
+      "share_boot_below_0": 0.8825
+     }
+    },
+    "loglik": -2721.916606677066,
+    "converged": true,
+    "n_boot": 2000,
+    "n_boot_converged": 2000,
+    "per_season": {
+     "2019-20": {
+      "n_matches": 306,
+      "n_teams": 18,
+      "gamma": 1.0717299448252762,
+      "goals_ratio": 1.0717299578059072,
+      "identity_abs_diff": 1.2980631014514188e-08,
+      "analytic_gamma_ci": [
+       0.9456401640059616,
+       1.2146322865236807
+      ]
+     },
+     "2020-21": {
+      "n_matches": 306,
+      "n_teams": 18,
+      "gamma": 1.2361446519935497,
+      "goals_ratio": 1.236144578313253,
+      "identity_abs_diff": 7.368029675269838e-08,
+      "analytic_gamma_ci": [
+       1.0861002141946765,
+       1.4069176864910922
+      ]
+     },
+     "2021-22": {
+      "n_matches": 306,
+      "n_teams": 18,
+      "gamma": 1.2987951687752695,
+      "goals_ratio": 1.2987951807228915,
+      "identity_abs_diff": 1.1947622002850267e-08,
+      "analytic_gamma_ci": [
+       1.1427486922440748,
+       1.4761503573645653
+      ]
+     }
+    },
+    "league": "Bundesliga",
+    "counts_by_season": {
+     "2019-20": {
+      "closed": 82,
+      "full": 224
+     },
+     "2020-21": {
+      "closed": 306,
+      "full": 0
+     },
+     "2021-22": {
+      "closed": 0,
+      "full": 306
+     }
+    }
+   },
+   "SP1": {
+    "groups": {
+     "full": {
+      "gamma": 1.3798071545804698,
+      "gamma_ci": [
+       1.2651371952435346,
+       1.5022148614545465
+      ],
+      "n_matches": 650,
+      "raw_goals_ratio": 1.374455732946299
+     },
+     "closed": {
+      "gamma": 1.1902342683727867,
+      "gamma_ci": [
+       1.081136876193458,
+       1.315826576416766
+      ],
+      "n_matches": 490,
+      "raw_goals_ratio": 1.1960072595281306
+     }
+    },
+    "differences": {
+     "closed_minus_full": {
+      "est": -0.1895728862076831,
+      "ci": [
+       -0.33895862805887456,
+       -0.030753929736776313
+      ],
+      "share_boot_below_0": 0.9895
+     }
+    },
+    "loglik": -3089.190195186104,
+    "converged": true,
+    "n_boot": 2000,
+    "n_boot_converged": 2000,
+    "per_season": {
+     "2019-20": {
+      "n_matches": 380,
+      "n_teams": 20,
+      "gamma": 1.378787749018072,
+      "goals_ratio": 1.378787878787879,
+      "identity_abs_diff": 1.2976980690027062e-07,
+      "analytic_gamma_ci": [
+       1.2114687540337366,
+       1.5692155910026733
+      ]
+     },
+     "2020-21": {
+      "n_matches": 380,
+      "n_teams": 20,
+      "gamma": 1.2009236131789767,
+      "goals_ratio": 1.2009237875288683,
+      "identity_abs_diff": 1.7434989163511716e-07,
+      "analytic_gamma_ci": [
+       1.0571506497611036,
+       1.3642497642287432
+      ]
+     },
+     "2021-22": {
+      "n_matches": 380,
+      "n_teams": 20,
+      "gamma": 1.313868586675042,
+      "goals_ratio": 1.313868613138686,
+      "identity_abs_diff": 2.6463644164920197e-08,
+      "analytic_gamma_ci": [
+       1.1556643215015845,
+       1.493730169681547
+      ]
+     }
+    },
+    "league": "La Liga",
+    "counts_by_season": {
+     "2019-20": {
+      "closed": 110,
+      "full": 270
+     },
+     "2020-21": {
+      "closed": 380,
+      "full": 0
+     },
+     "2021-22": {
+      "closed": 0,
+      "full": 380
+     }
+    }
+   }
+  }
+ },
+ "block_bootstrap": {
+  "2020-21": {
+   "iid": {
+    "gamma_ci": [
+     0.883573122827174,
+     1.1433794252013705
+    ],
+    "width": 0.25980630237419644,
+    "width_mc_ci": [
+     0.25187634961183547,
+     0.2679859179211348
+    ],
+    "gamma_se": 0.06625246635871845,
+    "log_gamma_se": 0.06570581585905105,
+    "n_boot": 2000,
+    "n_converged": 2000
+   },
+   "date_block_38x10": {
+    "gamma_ci": [
+     0.9006182759234792,
+     1.1197835529639584
+    ],
+    "width": 0.21916527704047917,
+    "width_mc_ci": [
+     0.21247579230435615,
+     0.22606537026780726
+    ],
+    "gamma_se": 0.05625920597224376,
+    "log_gamma_se": 0.05585604626976725,
+    "n_boot": 2000,
+    "n_converged": 2000
+   },
+   "team_cluster_home": {
+    "gamma_ci": [
+     0.836404020886432,
+     1.1727662884029624
+    ],
+    "width": 0.3363622675165304,
+    "width_mc_ci": [
+     0.32609563091814275,
+     0.3469521339194591
+    ],
+    "gamma_se": 0.08488357015639154,
+    "log_gamma_se": 0.08512163832436842,
+    "n_boot": 2000,
+    "n_converged": 2000
+   },
+   "analytic_wald_width": 0.24754147041333668
+  },
+  "2024-25": {
+   "iid": {
+    "gamma_ci": [
+     0.9555666573761624,
+     1.1866099169000137
+    ],
+    "width": 0.2310432595238513,
+    "width_mc_ci": [
+     0.22399122838625712,
+     0.23831731338762047
+    ],
+    "gamma_se": 0.061038214763951916,
+    "log_gamma_se": 0.05712732365733021,
+    "n_boot": 2000,
+    "n_converged": 2000
+   },
+   "date_block_38x10": {
+    "gamma_ci": [
+     0.9223778869629098,
+     1.2226829274755426
+    ],
+    "width": 0.30030504051263285,
+    "width_mc_ci": [
+     0.2911389626931111,
+     0.3097596986781733
+    ],
+    "gamma_se": 0.07632376579258508,
+    "log_gamma_se": 0.07136274787059213,
+    "n_boot": 2000,
+    "n_converged": 2000
+   },
+   "team_cluster_home": {
+    "gamma_ci": [
+     0.9237019013712884,
+     1.2277126938362937
+    ],
+    "width": 0.3040107924650053,
+    "width_mc_ci": [
+     0.29473160561901734,
+     0.3135821207267125
+    ],
+    "gamma_se": 0.07845992198038666,
+    "log_gamma_se": 0.07324279604411034,
+    "n_boot": 2000,
+    "n_converged": 2000
+   },
+   "analytic_wald_width": 0.2507060712957997
+  }
+ },
+ "coverage": {
+  "true_gamma": 1.2170818962308059,
+  "n_sims": 500,
+  "n_boot": 200,
+  "level": 0.95,
+  "coverage_percentile": {
+   "share": 0.948,
+   "n_covered": 474,
+   "ci": [
+    0.9247336289697302,
+    0.9657543019172321
+   ]
+  },
+  "coverage_wald_log": {
+   "share": 0.95,
+   "n_covered": 475,
+   "ci": [
+    0.927072378349521,
+    0.9673848198506764
+   ]
+  },
+  "coverage_analytic": {
+   "share": 0.962,
+   "n_covered": 481,
+   "ci": [
+    0.94129270953628,
+    0.9769692291937525
+   ]
+  },
+  "runtime_seconds": 551.1581239700317,
+  "mean_boot_se_log": 0.05713898580000173,
+  "mean_analytic_se_log": 0.056930079722574634,
+  "sd_log_gamma_hat_across_sims": 0.057524658333757514,
+  "max_abs_gamma_minus_goals_ratio": 6.698913261882211e-07
+ },
+ "cold_vs_warm": {
+  "true_gamma": 1.2170818962308059,
+  "n_sims": 200,
+  "warm": {
+   "gamma_bias": 0.002107016517402638,
+   "mc_se": 0.00469996405867298,
+   "gamma_sd": 0.06646752914441426,
+   "bias_ci": [
+    -0.007104913037596403,
+    0.011318946072401678
+   ],
+   "mean_iter": 26.84
+  },
+  "cold": {
+   "gamma_bias": 0.0021069928733261634,
+   "mc_se": 0.004699964385149024,
+   "gamma_sd": 0.06646753376148275,
+   "bias_ci": [
+    -0.007104937321565924,
+    0.01131892306821825
+   ],
+   "mean_iter": 28.73
+  },
+  "max_abs_gamma_diff_cold_vs_warm": 6.179662976890654e-07,
+  "max_abs_theta_diff_cold_vs_warm": 2.469426944373687e-06,
+  "max_abs_theta": 1.105913540943025,
+  "max_proj_grad_norm": 0.0002851458817065833,
+  "n_converged": 400,
+  "n_fits": 400
+ },
+ "verification": {
+  "identity_max_abs_diff_per_season": 3.529220746756323e-07,
+  "identity_max_abs_diff_pooled": 3.421714684925803e-07,
+  "extra_goals_identity_max_abs_diff": 3.8021640114127564e-07,
+  "identity_max_abs_diff_other_leagues": 1.7434989163511716e-07,
+  "first500_ci_vs_run_all_max_abs_diff": 2.220446049250313e-16,
+  "coverage_sims_max_abs_gamma_minus_goals_ratio": 6.698913261882211e-07
+ }
+}
