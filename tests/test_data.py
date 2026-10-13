@@ -48,6 +48,19 @@ def test_every_complete_season_has_380_matches_and_20_teams(matches):
             assert len(set(g["home"]) | set(g["away"])) == 20, season
             assert (g.groupby("home").size() == 19).all(), season
             assert (g.groupby("away").size() == 19).all(), season
+            # double round-robin: every ordered (home, away) pair appears exactly once
+            pairs = list(zip(g["home"], g["away"]))
+            assert len(set(pairs)) == 380, f"{season}: duplicated fixture"
+            assert not any(h == a for h, a in pairs), f"{season}: team plays itself"
+
+
+def test_fixture_uniqueness_check_catches_duplicate_and_missing_pair():
+    """The invariant above must fail on a list with one duplicated and one missing pair."""
+    teams = [f"T{i}" for i in range(20)]
+    pairs = [(h, a) for h in teams for a in teams if h != a]
+    broken = pairs[:-1] + [pairs[0]]           # drop the last pair, repeat the first
+    assert len(broken) == 380
+    assert len(set(broken)) == 379
 
 
 def test_no_missing_goals_and_outcome_consistent(matches):

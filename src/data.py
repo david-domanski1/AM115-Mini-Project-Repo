@@ -2,7 +2,7 @@
 
 Public entry point: ``build_matches(seasons)`` returns one tidy DataFrame with one
 row per match, canonical team names, parsed dates and margin-free implied
-probabilities for Bet365, Pinnacle (opening and closing) and the market average.
+probabilities for Bet365, Pinnacle (pre-match and closing) and the market average.
 """
 from __future__ import annotations
 
@@ -19,7 +19,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DIR = os.path.join(ROOT, "data", "raw")
 PROCESSED_DIR = os.path.join(ROOT, "data", "processed")
 TEAM_NAMES_CSV = os.path.join(ROOT, "data", "team_names.csv")
-URL_PATTERN = "https://www.football-data.co.uk/mmz4281/{code}/E0.csv"
+URL_PATTERN = "https://www.football-data.co.uk/mmz4281/{code}/{league}.csv"
+DEFAULT_LEAGUE = "E0"   # Premier League; D1 = Bundesliga, SP1 = La Liga (same file layout)
 
 CORE_SEASONS = [f"{y}-{str(y + 1)[-2:]}" for y in range(2015, 2026)]      # 2015-16 .. 2025-26
 EXTENDED_SEASONS = [f"{y}-{str(y + 1)[-2:]}" for y in range(2005, 2015)]  # 2005-06 .. 2014-15
@@ -33,11 +34,14 @@ BOOKMAKERS = {
     "PSC": [("PSCH", "PSCD", "PSCA")],
     "Avg": [("BbAvH", "BbAvD", "BbAvA"), ("AvgH", "AvgD", "AvgA")],
 }
+# football-data.co.uk's notes file says the non-closing odds are "pre-closing" odds
+# collected on Friday afternoons for weekend games and Tuesday afternoons for midweek
+# games, i.e. 1-3 days before kick-off.  They are not opening odds.
 BOOKMAKER_LABELS = {
-    "B365": "Bet365 (opening)",
-    "PS": "Pinnacle (opening)",
+    "B365": "Bet365 (pre-match, Fri/Tue collection)",
+    "PS": "Pinnacle (pre-match, Fri/Tue collection)",
     "PSC": "Pinnacle (closing)",
-    "Avg": "Market average",
+    "Avg": "Market average (pre-match, Fri/Tue collection)",
 }
 
 # Full club names for display.  football-data.co.uk uses the same short name for a
@@ -79,17 +83,18 @@ def season_expected_complete(label: str, today: dt.date | None = None) -> bool:
     return today >= dt.date(season_end_year(label), 7, 1)
 
 
-def raw_path(label: str) -> str:
-    return os.path.join(RAW_DIR, f"E0_{season_code(label)}.csv")
+def raw_path(label: str, league: str = DEFAULT_LEAGUE) -> str:
+    return os.path.join(RAW_DIR, f"{league}_{season_code(label)}.csv")
 
 
-def download_season(label: str, force: bool = False, verbose: bool = True) -> str:
-    """Download one season's CSV into data/raw/ (cached; never re-downloaded if present)."""
+def download_season(label: str, force: bool = False, verbose: bool = True,
+                    league: str = DEFAULT_LEAGUE) -> str:
+    """Download one season's CSV for ``league`` into data/raw/ (cached; never re-downloaded if present)."""
     os.makedirs(RAW_DIR, exist_ok=True)
-    path = raw_path(label)
+    path = raw_path(label, league)
     if os.path.exists(path) and not force and os.path.getsize(path) > 0:
         return path
-    url = URL_PATTERN.format(code=season_code(label))
+    url = URL_PATTERN.format(code=season_code(label), league=league)
     if verbose:
         print(f"[data] downloading {label} from {url}")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (AM115 mini-project)"})
@@ -137,9 +142,9 @@ def implied_probabilities(odds_h, odds_d, odds_a):
     return p[:, 0], p[:, 1], p[:, 2], total - 1.0
 
 
-def load_raw_season(label: str) -> pd.DataFrame:
+def load_raw_season(label: str, league: str = DEFAULT_LEAGUE) -> pd.DataFrame:
     """Read one raw file and return the used columns with a season label."""
-    df = _read_csv(download_season(label))
+    df = _read_csv(download_season(label, league=league))
     df = df.dropna(subset=["FTHG", "FTAG", "HomeTeam", "AwayTeam"]).copy()
     out = pd.DataFrame({
         "season": label,

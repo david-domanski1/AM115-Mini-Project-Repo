@@ -169,10 +169,10 @@ def fig4_parameter_recovery(rec, name="fig4_parameter_recovery"):
 
 
 def fig5_logloss_comparison(rows, diffs, season, n, n_boot, name="fig5_logloss_comparison"):
-    """Left: log-loss bars with bootstrap CIs.  Right: paired differences vs the base rate.
+    """Left: log-loss bars with bootstrap CIs.  Right: paired differences.
 
     ``rows``: list of (label, est, lo, hi); ``diffs``: list of (label, est, lo, hi) of
-    paired log-loss differences (forecaster minus base rate).
+    paired log-loss differences, each labelled "A − B" (negative = A better).
     """
     fig, axes = plt.subplots(1, 2, figsize=(13, 5.8), gridspec_kw={"width_ratios": [1.15, 1]})
     ax = axes[0]
@@ -201,7 +201,7 @@ def fig5_logloss_comparison(rows, diffs, season, n, n_boot, name="fig5_logloss_c
     ax.set_yticks(ys); ax.set_yticklabels(dl)
     ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(5))
     ax.set_xlabel("Log-loss difference (nats per match)")
-    ax.set_title("Paired differences (negative = better than base rate)")
+    ax.set_title("Paired differences (negative = first forecast better)")
     fig.suptitle(f"PRELIMINARY: 2023-24 strengths forecasting {season}; 95% CIs from {n_boot} paired "
                  f"bootstrap resamples of the {n} held-out matches", fontsize=15)
     fig.tight_layout()

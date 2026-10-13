@@ -39,9 +39,12 @@ two-constraint fit is still computed for every season and stored under
 
 Source: [football-data.co.uk](https://www.football-data.co.uk), file
 `mmz4281/{SS}/E0.csv` for seasons 2005-06 through 2025-26. Columns used: `Date, HomeTeam,
-AwayTeam, FTHG, FTAG, FTR`, Bet365 odds `B365H/D/A`, Pinnacle opening `PSH/D/A` (from 2012-13),
+AwayTeam, FTHG, FTAG, FTR`, Bet365 odds `B365H/D/A`, Pinnacle pre-match `PSH/D/A` (from 2012-13),
 Pinnacle closing `PSCH/D/A`, and the market average (`BbAvH/D/A` before 2019-20, `AvgH/D/A`
-after). Dates in both `dd/mm/yy` and `dd/mm/yyyy` are parsed. `data/team_names.csv` is the
+after). The non-closing odds are **not opening odds**: football-data.co.uk's notes say they are
+collected on Friday afternoons (weekend games) and Tuesday afternoons (midweek games), 1-3 days
+before kick-off, so the bookmaker already knows injuries and selection news that a model fitted
+earlier does not. Dates in both `dd/mm/yy` and `dd/mm/yyyy` are parsed. `data/team_names.csv` is the
 raw → canonical team-name table (no club changes spelling across these files, so it is an
 identity map with full names attached). Implied probabilities use proportional margin
 removal, p_k = (1/o_k) / Σ_j (1/o_j); the overround Σ_j 1/o_j − 1 is stored per match.
@@ -98,7 +101,12 @@ matches that have them.
   season (refit each time, warm-started from the full-sample estimate); the pooled fit is
   bootstrapped with resampling stratified by season. Held-out metrics use 2,000 paired
   resamples without refitting.
-- numpy seed 115 everywhere.
-- The out-of-sample forecast is a **preliminary stand-in**: 2023-24 strengths applied
-  unchanged to 2024-25, promoted teams given the arithmetic mean α and β of the three
-  relegated teams. A rolling / time-decayed fit is the intended final evaluation.
+- Randomness goes through `np.random.default_rng(seed)`; the base seed is 115, each season's
+  bootstrap uses 115 + the season's index, the pooled fits use 215 / 216, and every script
+  records its seed in its output.
+- Outcome probabilities from the 0..10 score grid are renormalised to sum to 1
+  (`outcome_probs(normalise=True)`, the default).
+- The single-split forecast in `run_all.py` is a **preliminary stand-in**: 2023-24 strengths
+  applied unchanged to 2024-25, promoted teams given the arithmetic mean α and β of the three
+  relegated teams; its base rate uses only seasons before 2024-25. The rolling-origin
+  evaluation (`scripts/run_rolling.py`) is the final one.

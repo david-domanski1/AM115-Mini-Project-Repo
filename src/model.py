@@ -196,11 +196,14 @@ def score_grid(lam, mu, max_goals=10):
     return ph[:, :, None] * pa[:, None, :]
 
 
-def outcome_probs(lam, mu, max_goals=10, normalise=False):
+def outcome_probs(lam, mu, max_goals=10, normalise=True):
     """P(home win), P(draw), P(away win) by summing the score grid over 0..max_goals goals each.
 
-    Returns an (m, 3) array in the order H, D, A.  With ``normalise=False`` (default)
-    the three probabilities sum to the grid mass, which is < 1 by the truncation error.
+    Returns an (m, 3) array in the order H, D, A.  With ``normalise=True`` (default) the
+    three probabilities are divided by the grid mass so they sum to exactly 1 (this
+    conditions on the match ending inside the 0..max_goals grid).  With
+    ``normalise=False`` they sum to the raw grid mass, which is < 1 by the truncation
+    error (at most about 0.6% for Premier League rates on the 0..10 grid).
     """
     g = score_grid(lam, mu, max_goals)
     K = max_goals + 1
