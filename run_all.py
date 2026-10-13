@@ -58,6 +58,80 @@ def fmt_ci(ci, nd=3):
     return f"[{ci[0]:.{nd}f}, {ci[1]:.{nd}f}]"
 
 
+# Headline entries of the three workstream result files that the summary quotes, in order:
+# (results file stem, [(headline key, label, decimals)]).  Every entry carries est, ci, n, how.
+WORKSTREAM_HEADLINES = [
+    ("timeseries", "Home advantage over time, 2005-06..2025-26 (scripts/run_timeseries.py)", [
+        ("common_gamma_20_crowd_seasons", "common gamma, 20 crowd seasons (excl. 2020-21)", 3),
+        ("extra_home_goals_common_20_crowd_seasons", "extra home goals per match, same fit", 3),
+        ("gamma_2020_21", "gamma 2020-21 (closed doors)", 3),
+        ("gamma_2024_25", "gamma 2024-25 (full stadiums)", 3),
+        ("identity_max_abs_gamma_minus_goals_ratio", "verification: max |gamma-hat - sum H / sum A|", 9),
+        ("cochran_q_10_core_crowd_seasons", "Cochran Q, 10 core crowd seasons", 2),
+        ("cochran_q_11_core_seasons", "Cochran Q, 11 core seasons (adds 2020-21)", 2),
+        ("cochran_q_20_crowd_seasons", "Cochran Q, 20 crowd seasons since 2005-06", 2),
+        ("trend_log_gamma_per_season_20_crowd_seasons", "trend in log gamma per season, 20 crowd seasons", 4),
+        ("z_2020_21_random_effects", "z of 2020-21 vs other seasons, random effects", 2),
+        ("z_2024_25_random_effects", "z of 2024-25 vs other seasons, random effects", 2),
+        ("crowd_gamma_closed_minus_full_e0", "gamma closed doors - full crowds, PL 2019-20..2021-22 (date flag)", 3),
+        ("ci_coverage_percentile", "coverage of the 95% bootstrap percentile interval", 3),
+        ("max_abs_theta_all_fits", "max |theta| over all fits (bounds +-5)", 2),
+    ]),
+    ("rolling", "Rolling-origin forecast evaluation, test seasons 2016-17..2025-26 (scripts/run_rolling.py)", [
+        ("logloss_poisson_mean10", "Poisson log-loss, mean of 10 seasons", 4),
+        ("logloss_base_rate_mean10", "base rate (prior seasons only)", 4),
+        ("logloss_pinnacle_prematch_mean10", "Pinnacle pre-match (odds matches)", 4),
+        ("logloss_pinnacle_closing_mean10", "Pinnacle closing (odds matches)", 4),
+        ("poisson_minus_base_logloss_mean10", "Poisson - base rate", 4),
+        ("poisson_minus_pinnacle_prematch_logloss_mean10", "Poisson - Pinnacle pre-match", 4),
+        ("poisson_minus_pinnacle_detectable_gap_per_season", "detectable gap in one season", 4),
+        ("decay_gain_vs_no_decay", "gain from time decay (no decay - 365-day half-life)", 4),
+        ("home_goals_pred_minus_realised_2024_25_rolling", "2024-25 mean lambda - realised home goals, rolling", 3),
+        ("home_goals_pred_minus_realised_2024_25_frozen", "same, frozen 2023-24 fit", 3),
+        ("logloss_2024_25_param_and_match", "2024-25 log-loss, parameter + imputation + match uncertainty", 4),
+        ("betting_return_margin_0pct", "flat-stake return at Pinnacle closing, margin 0", 3),
+    ]),
+    ("dixon_coles", "Dixon-Coles correction (scripts/run_dixon_coles.py)", [
+        ("pooled_rho", "pooled rho, 11 seasons", 4),
+        ("pooled_lr_statistic", "LR statistic vs rho = 0", 2),
+        ("insample_logloss_change_per_match", "in-sample log-loss change per match, DC - Poisson", 5),
+        ("heldout_logloss_dc_minus_poisson", "held-out 2024-25 log-loss, DC - Poisson", 5),
+        ("max_abs_pearson_residual_poisson", "largest |Pearson residual| in the pooled scoreline table", 2),
+        ("pearson_dispersion_pooled", "Pearson dispersion, pooled", 3),
+    ]),
+]
+
+
+def workstream_summary_lines(results_dir=RESULTS):
+    """Markdown lines quoting the headline numbers of results/{timeseries,rolling,dixon_coles}.json.
+
+    Each file is written by its own script (under scripts/); a missing file is reported as
+    such rather than invented.
+    """
+    lines = ["## Workstream results (each number: estimate, 95% interval, how obtained)", ""]
+    for stem, title, keys in WORKSTREAM_HEADLINES:
+        path = os.path.join(results_dir, f"{stem}.json")
+        if not os.path.exists(path):
+            lines += [f"### {title}", "", f"- results/{stem}.json not found; run the script to produce it.", ""]
+            continue
+        with open(path) as fh:
+            res = json.load(fh)
+        meta, head = res["meta"], res["headline"]
+        lines += [f"### {title}", "",
+                  f"Generated {meta.get('generated')}, seed {meta.get('seed')}, runtime {float(meta.get('runtime_seconds', 0)):.0f} s. "
+                  f"Full table of {len(head)} headline entries in results/{stem}.json and review/results_{stem}.md.", ""]
+        for key, label, nd in keys:
+            h = head.get(key)
+            if h is None:
+                lines.append(f"- {label}: key '{key}' not in file.")
+                continue
+            ci = h.get("ci")
+            ci_s = f" {fmt_ci(ci, nd)}" if ci and ci[0] is not None else ""
+            lines.append(f"- {label}: {h['est']:.{nd}f}{ci_s} (n = {h.get('n')}; {h.get('how', '')})")
+        lines.append("")
+    return lines
+
+
 def main():
     t0 = time.time()
     np.random.seed(SEED)
@@ -219,15 +293,18 @@ def main():
 
     goals_tab = ha_tab[["ha_goals", "ha_goals_lo", "ha_goals_hi"]].rename(columns={"ha_goals": "est", "ha_goals_lo": "lo", "ha_goals_hi": "hi"})
     gamma_tab = ha_tab[["gamma", "gamma_lo", "gamma_hi"]].rename(columns={"gamma": "est", "gamma_lo": "lo", "gamma_hi": "hi"})
+    # The 11-season extra-goals figure.  The report's home-advantage figure is
+    # figures/fig2_home_advantage_2005_2026 (scripts/run_timeseries.py, 21 seasons with the
+    # common-gamma band); the gamma version of this figure (old fig2b) and the 2023-24
+    # histogram figure (old fig3) were retired on 13 Oct 2026 because they duplicated it and
+    # figures/fig3_goals_envelope (scripts/run_dixon_coles.py, pooled with a bootstrap band).
     F.fig2_home_advantage(goals_tab, {"est": ha_pooled, "lo": bp["ha_goals_ci"][0], "hi": bp["ha_goals_ci"][1]},
                           kind="goals", n_boot=N_BOOT, name="fig2_home_advantage")
-    F.fig2_home_advantage(gamma_tab, {"est": fp.gamma, "lo": bp["gamma_ci"][0], "hi": bp["gamma_ci"][1]},
-                          kind="gamma", n_boot=N_BOOT, name="fig2b_home_advantage_gamma")
+    del gamma_tab
 
-    # 2023-24 goal distribution, scoreline table, team strengths
+    # 2023-24 scoreline table, team strengths
     d, f = designs[REF_SEASON], fits[REF_SEASON]
     lam, mu = rates(f.log_alpha, f.log_beta, f.log_gamma, d.home, d.away)
-    F.fig3_goals_vs_poisson(d.x, d.y, lam, mu, REF_SEASON)
     grid = score_grid(lam, mu, 10)
     rows = []
     for i in range(4):
@@ -497,11 +574,18 @@ def main():
         f"- Bootstrap seeds: per-season fits use seed {SEED} + season index; pooled fits {SEED}+100 / {SEED}+101; "
         f"held-out paired bootstrap {SEED}.",
         "",
+    ] + workstream_summary_lines() + [
         "## Where things are",
         "",
-        "- results/numbers.json: every number above.  results/*.csv: per-season tables, scorelines, team strengths.",
-        "- figures/fig1_baselines: outcome shares by season.  fig2_home_advantage (extra goals) and fig2b (gamma): headline.",
-        "- figures/fig3_goals_vs_poisson: 2023-24 goal histograms vs fitted Poisson.  fig4_parameter_recovery.  fig5_logloss_comparison.",
+        "- results/numbers.json: every number of the run_all.py pipeline.  results/*.csv: per-season tables, scorelines, team strengths.",
+        "- results/timeseries.json, rolling.json, dixon_coles.json: the three workstreams (scripts/run_*.py), each with a",
+        "  'headline' dict of {est, ci, n, how}; prose notes in review/results_*.md.",
+        "- figures/fig1_baselines: outcome shares by season.  fig2_home_advantage_2005_2026: the home-advantage figure (gamma by",
+        "  season with the common-gamma band); fig2_home_advantage: the same 11 seasons in extra goals.",
+        "- figures/fig3_goals_envelope: pooled goal histograms vs fitted Poisson with a bootstrap band.  fig4_parameter_recovery.",
+        "  fig5_logloss_comparison (single split).  fig6_rolling_logloss, fig7_rolling_reliability (rolling evaluation).",
+        "  fig8_crowd_gamma (crowd status, three leagues).  fig9_dixon_coles (rho by season, profile likelihood, residuals).",
+        "- notebooks/final_report.ipynb: the report, in rubric order, executed from a clean kernel.",
     ]
     summary = "\n".join(lines)
     with open(os.path.join(RESULTS, "SUMMARY.md"), "w") as fh:
