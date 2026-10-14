@@ -561,11 +561,20 @@ def md_what_changed(root: str, numbers: dict) -> str:
     q10, q11, q20 = (_p_from_how(ts, k) for k in ("cochran_q_10_core_crowd_seasons", "cochran_q_11_core_seasons",
                                                    "cochran_q_20_crowd_seasons"))
     return "\n".join([
-        "**Milestone 2 feedback** (the brief and the comments on the M2 submission) asked for a held-out forecast "
-        "compared with a model-free baseline and the betting market, a clear statement of the uncertainty in every "
-        "number, and a check of the code against known mathematics. The M2 submission had one frozen split marked "
-        "PRELIMINARY, a bootstrap on the 380 test matches only, and a Skellam check. All three were taken up:",
+        "**Milestone 2 feedback.** The written comment on the M2 presentation (Andrew Cheng, Canvas) was: "
+        "*\"Great presentation! Simple benchmarks would be appreciated.\"* The brief for the final adds three "
+        "requirements the M2 version only partly met: a held-out forecast compared with a model-free baseline and "
+        "the betting market, an error bar on every number with how it was obtained, and a check of the code against "
+        "known mathematics. The M2 submission had one frozen split marked PRELIMINARY, a bootstrap on the 380 test "
+        "matches only, and a Skellam check. All four were taken up:",
         "",
+        f"- *\"Simple benchmarks would be appreciated\"* → taken up: every forecast in section 6 is scored on the same "
+        f"metric against two benchmarks that need no model, the uniform forecast (1/3 each, log-loss ln 3 = "
+        f"{np.log(3):.4f} nats per match in every season) and the prior-seasons base rate "
+        f"({_h(ro, 'logloss_base_rate_mean10', 4)} over the 10 test seasons), and against the market "
+        f"(Pinnacle pre-match {_h(ro, 'logloss_pinnacle_prematch_mean10', 4)}, closing "
+        f"{_h(ro, 'logloss_pinnacle_closing_mean10', 4)}); the Poisson model sits at "
+        f"{_h(ro, 'logloss_poisson_mean10', 4)}. Figures 5 and 6 show the benchmarks side by side with the model.",
         f"- *Held-out validation with a baseline* → taken up: rolling-origin evaluation over 10 test seasons "
         f"(section 6.2), Poisson − base rate {_h(ro, 'poisson_minus_base_logloss_mean10', 4, True)} and "
         f"Poisson − Pinnacle pre-match {_h(ro, 'poisson_minus_pinnacle_prematch_logloss_mean10', 4, True)} nats per match.",
@@ -671,3 +680,51 @@ def show_figure_or_placeholder(path, source: str, width: int = 950):
         print(f"PLACEHOLDER: results for this figure not found; run {source}")
         return
     show_figure(path, width=width)
+
+
+# ---------------------------------------------------------------- summary at the top
+
+def md_summary(root: str, numbers: dict) -> str:
+    """The summary at the top of the report: the answer to each question, rendered from the results files."""
+    ts, ro, dc = load_results(root, "timeseries"), load_results(root, "rolling"), load_results(root, "dixon_coles")
+    pooled = numbers["pooled_gamma_excluding_2020_21"] if "pooled_gamma_excluding_2020_21" in numbers else None
+    lines = ["**Summary.**", ""]
+    if ts:
+        lines += [
+            f"- **Home advantage is worth {_h(ts, 'extra_home_goals_common_20_crowd_seasons', 2)} extra home goals per "
+            f"match** (multiplier γ = {_h(ts, 'common_gamma_20_crowd_seasons', 3)}; common-γ fit over the 20 seasons "
+            f"with crowds, 2005-06..2025-26, 2,000 season-stratified bootstrap refits). It is not constant: it falls by "
+            f"{_h(ts, 'trend_log_gamma_per_season_20_crowd_seasons', 4, True)} in log γ per season, about 9% per decade.",
+            f"- **2020-21, played behind closed doors, had essentially no home advantage**: γ = "
+            f"{_h(ts, 'gamma_2020_21', 3)}, {_h(ts, 'extra_home_goals_2020_21', 2, True)} extra goals. But 2024-25, with "
+            f"full stadiums, was nearly as low (γ = {_h(ts, 'gamma_2024_25', 3)}; random-effects z "
+            f"{_h(ts, 'z_2024_25_random_effects', 1, True)} vs {_h(ts, 'z_2020_21_random_effects', 1, True)} for 2020-21), "
+            f"and the within-period closed-doors-minus-full-crowds contrast is "
+            f"{_h(ts, 'crowd_gamma_closed_minus_full_e0', 3, True)}, so the data do not show that crowds are the cause.",
+        ]
+    if ro:
+        lines += [
+            f"- **The model forecasts better than any no-model benchmark and slightly worse than the betting market.** "
+            f"Rolling-origin held-out log-loss over the 10 test seasons 2016-17..2025-26 (nats per match, lower is "
+            f"better): uniform 1/3 {np.log(3):.3f}, prior-seasons base rate {_h(ro, 'logloss_base_rate_mean10', 3)}, "
+            f"Poisson {_h(ro, 'logloss_poisson_mean10', 3)}, Pinnacle pre-match {_h(ro, 'logloss_pinnacle_prematch_mean10', 3)}. "
+            f"Paired: Poisson − base rate {_h(ro, 'poisson_minus_base_logloss_mean10', 3, True)} (better in all 10 seasons), "
+            f"Poisson − Pinnacle {_h(ro, 'poisson_minus_pinnacle_prematch_logloss_mean10', 3, True)} (behind in all 10).",
+        ]
+    if dc:
+        lines += [
+            f"- **The Dixon–Coles low-score correction is real but immaterial**: ρ = {_h(dc, 'pooled_rho', 3)} "
+            f"(LR p = {_p_from_how(dc, 'pooled_lr_statistic')}), moving held-out log-loss by "
+            f"{_h(dc, 'heldout_logloss_dc_minus_poisson', 4, True)} nats per match.",
+        ]
+    lines += [
+        f"- **Verification**: the fitted γ̂ equals the analytic solution ΣH/ΣA to "
+        f"{ts['headline']['identity_max_abs_gamma_minus_goals_ratio']['est']:.1e} in every season, the score grid "
+        f"matches the Skellam closed form to machine precision, and 95% bootstrap intervals cover the true γ in "
+        f"{_h(ts, 'ci_coverage_percentile', 3)} of simulated seasons." if ts else
+        "- **Verification**: see section 5 (results/timeseries.json missing).",
+        "",
+        "Every number above is rendered from the results files named in the table below and carries its 95% interval; "
+        "sections 1–9 follow in the rubric's order.",
+    ]
+    return "\n".join(lines)

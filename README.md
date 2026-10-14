@@ -6,15 +6,14 @@ is reproducible from a fresh clone (the raw CSVs are committed under `data/raw/`
 connection is needed):
 
 ```bash
-pip install -r requirements.txt nbformat nbconvert jupyter ipykernel
+pip install -r requirements.txt   # exact versions, incl. nbconvert/ipykernel for the notebook
 make workstreams  # the three workstream scripts: about 7 + 10 + 1 minutes on a laptop
 make all          # = python3 run_all.py (25 s)  followed by  python3 -m pytest -q tests (2 s)
 make notebook     # execute notebooks/final_report.ipynb in place from a clean kernel (10 s)
 ```
 
 `make all` alone reproduces the core pipeline; `results/SUMMARY.md` then says which workstream
-result files are missing. Python 3.9+, numpy / pandas / scipy / matplotlib only (plus nbconvert
-for the notebook).
+result files are missing. Python 3.11+; `requirements.txt` pins the exact versions the submission was executed with.
 
 ## The question
 
