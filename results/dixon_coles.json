@@ -1,0 +1,400 @@
+{
+  "meta": {
+    "seed": 115,
+    "generated": "2026-10-13T16:23:48",
+    "runtime_seconds": 60.5,
+    "n_boot": 1000,
+    "n_boot_eval": 2000,
+    "n_sim": 2000,
+    "description": "Dixon-Coles rho per season and pooled (season-specific strengths, one gamma, one rho), LR test of rho = 0, pooled 11-season scoreline table with Pearson residuals, goal-histogram envelope, in-sample and held-out (2023-24 -> 2024-25) log-loss with and without the correction."
+  },
+  "headline": {
+    "pooled_rho": {
+      "est": -0.0507344922826517,
+      "ci": [
+        -0.09744907719857822,
+        -0.008585460327764369
+      ],
+      "n": 4180,
+      "how": "joint MLE over 11 seasons (season-specific alpha, beta; one gamma; one rho; 431 params), 95% percentile CI from 1000 season-stratified match-resampling refits (seed 415); profile-likelihood CI [-0.0937, -0.0075]"
+    },
+    "pooled_lr_statistic": {
+      "est": 5.274878519852791,
+      "ci": [
+        0.0009820691171752555,
+        5.02388618731489
+      ],
+      "n": 4180,
+      "how": "2 x (loglik DC - loglik Poisson) for the pooled fit, 1 df; p = 0.0216; ci = central 95% range of chi2_1 under rho = 0 (not a CI of the statistic)"
+    },
+    "pooled_loglik_gain_nats": {
+      "est": 2.6374392599263956,
+      "ci": [
+        0.0004910345585876278,
+        2.511943093657445
+      ],
+      "n": 4180,
+      "how": "scoreline log-likelihood gain of the pooled DC fit over the pooled Poisson fit, total nats; ci = central 95% range of the gain under rho = 0 (chi2_1 / 2)"
+    },
+    "max_abs_pearson_residual_poisson": {
+      "est": 3.3341429754092804,
+      "ci": [
+        -1.8777207915182148,
+        2.0128254006952675
+      ],
+      "n": 4180,
+      "how": "largest |(obs-exp)/sqrt(exp)| of the 17 pooled cells (0..3 x 0..3, 4+) under the pooled Poisson fit, cell 2-2; 4 of 17 cells exceed 2; ci = 95% range of that cell's residual in 2000 data sets simulated from the fit (seed 416, no refit); P(max |r| >= observed | model) = 0.009"
+    },
+    "max_abs_pearson_residual_dc": {
+      "est": 3.3447302662538125,
+      "ci": [
+        -1.8689382297385873,
+        2.096387105241548
+      ],
+      "n": 4180,
+      "how": "same under the pooled Dixon-Coles fit, cell 2-2; 4 of 17 cells exceed 2; ci from 2000 DC simulations (seed 417); P(max |r| >= observed | DC) = 0.008"
+    },
+    "observed_minus_expected_0_0_poisson": {
+      "est": -20.12731006320979,
+      "ci": [
+        -31.12731006320979,
+        30.897689936790076
+      ],
+      "n": 4180,
+      "how": "0-0 count observed 263 minus expected 283.1 under the pooled Poisson fit (DC expects 305.3); ci = 95% range of obs - exp in 2000 simulated data sets (seed 416)"
+    },
+    "pearson_dispersion_pooled": {
+      "est": 0.948146204796461,
+      "ci": [
+        0.9691133347523013,
+        1.0313644134260147
+      ],
+      "n": 8360,
+      "how": "sum of squared Pearson residuals of home and away goals / (2m - p), pooled Poisson fit; ci = 95% range under the Poisson model (chi2_7930/7930); per-season values 0.880..1.090 in dixon_coles_by_season.csv"
+    },
+    "goal_histogram_bins_outside_band": {
+      "est": 3.0,
+      "ci": [
+        0.0,
+        14.0
+      ],
+      "n": 4180,
+      "how": "bins (0..6+, home and away, 14 total) where the observed count lies outside the 95% parametric-bootstrap band (2000 simulated data sets from the pooled Poisson fit, seed 418); ci field = possible range"
+    },
+    "insample_logloss_change_per_match": {
+      "est": -0.0007438798931054258,
+      "ci": [
+        -0.0015095001076171788,
+        3.5229020271578894e-05
+      ],
+      "n": 4180,
+      "how": "outcome (H/D/A) log-loss of the pooled DC fit minus the pooled Poisson fit over all 4180 matches, nats per match (negative = DC better); paired bootstrap of matches, 2000 resamples, seed 115, no refit"
+    },
+    "insample_logloss_change_total_nats": {
+      "est": -3.10941795318068,
+      "ci": [
+        -6.309710449839807,
+        0.14725730473519977
+      ],
+      "n": 4180,
+      "how": "the per-match change times the number of matches (total nats over 11 seasons); same bootstrap"
+    },
+    "heldout_logloss_poisson": {
+      "est": 0.9837373391774855,
+      "ci": [
+        0.9292192227007791,
+        1.0411060988103145
+      ],
+      "n": 380,
+      "how": "2023-24 Poisson strengths frozen, promoted = mean of relegated, normalised 0..10 grid (reproduces numbers.json preliminary.log_loss.poisson); paired bootstrap of the 380 test matches, 2000 resamples, seed 115"
+    },
+    "heldout_logloss_dc": {
+      "est": 0.9829605346575075,
+      "ci": [
+        0.9291665351266188,
+        1.0399723128687401
+      ],
+      "n": 380,
+      "how": "Dixon-Coles fitted jointly on 2023-24 only (rho = -0.0201), same freezing and promoted rule; same paired bootstrap"
+    },
+    "heldout_logloss_dc_minus_poisson": {
+      "est": -0.0007768045199779694,
+      "ci": [
+        -0.0017984249712255011,
+        0.00024718173030212614
+      ],
+      "n": 380,
+      "how": "paired log-loss difference, DC fitted on 2023-24 minus Poisson, nats per match on 2024-25 (negative = DC better); 2000 paired resamples, seed 115"
+    },
+    "heldout_logloss_dc_prior_rho_minus_poisson": {
+      "est": -0.0015018363125515188,
+      "ci": [
+        -0.0035370754122088536,
+        0.0005174891069745555
+      ],
+      "n": 380,
+      "how": "paired log-loss difference, Poisson 2023-24 strengths with rho pooled over 2015-16..2023-24 (rho = -0.0399) minus Poisson, nats per match on 2024-25 (negative = DC better); 2000 paired resamples, seed 115"
+    },
+    "heldout_logloss_dc_minus_pinnacle": {
+      "est": 0.012656535188080853,
+      "ci": [
+        -0.01000871389173573,
+        0.03636299999875269
+      ],
+      "n": 380,
+      "how": "paired difference DC (2023-24) minus Pinnacle pre-match (Fri/Tue collection) on 2024-25; same bootstrap"
+    }
+  },
+  "details": {
+    "model": "P(x, y) = tau(x, y; lam, mu, rho) Pois(x; lam) Pois(y; mu); tau = 1 - lam mu rho (0-0), 1 + lam rho (0-1), 1 + mu rho (1-0), 1 - rho (1-1), 1 otherwise; admissible max(-1/lam, -1/mu) <= rho <= min(1/(lam mu), 1)",
+    "fit": "joint L-BFGS-B over Poisson log-parameters and rho with analytic gradient, warm-started at the Poisson MLE, rho box [-0.5, 0.5]",
+    "pooled": {
+      "rho": -0.0507344922826517,
+      "rho_bootstrap_ci": [
+        -0.09744907719857822,
+        -0.008585460327764369
+      ],
+      "rho_bootstrap_se": 0.02291840833754898,
+      "rho_profile_ci": [
+        -0.0937445626487392,
+        -0.007511656297803785
+      ],
+      "n_boot_converged": 1000,
+      "gamma_poisson": 1.2170237175792131,
+      "gamma_dc": 1.2176660504944954,
+      "loglik_poisson": -11913.310156784984,
+      "loglik_dc": -11910.672717525058,
+      "lr": {
+        "statistic": 5.274878519852791,
+        "df": 1,
+        "p_value": 0.021635297535739725
+      },
+      "admissible_range": [
+        -0.22558087565032015,
+        0.2144270273918329
+      ],
+      "n_params_dc": 431,
+      "n_matches": 4180,
+      "profile": {
+        "rho_grid": [
+          -0.2,
+          -0.195,
+          -0.19,
+          -0.185,
+          -0.18,
+          -0.175,
+          -0.17,
+          -0.165,
+          -0.16,
+          -0.155,
+          -0.15,
+          -0.145,
+          -0.14,
+          -0.135,
+          -0.13,
+          -0.125,
+          -0.12,
+          -0.115,
+          -0.11,
+          -0.105,
+          -0.1,
+          -0.095,
+          -0.09,
+          -0.085,
+          -0.08,
+          -0.075,
+          -0.07,
+          -0.065,
+          -0.06,
+          -0.055,
+          -0.05,
+          -0.045,
+          -0.04,
+          -0.035,
+          -0.03,
+          -0.025,
+          -0.02,
+          -0.015,
+          -0.01,
+          -0.005,
+          0.0,
+          0.005,
+          0.01,
+          0.015,
+          0.02,
+          0.025,
+          0.03,
+          0.035,
+          0.04,
+          0.045,
+          0.05,
+          0.055,
+          0.06,
+          0.065,
+          0.07,
+          0.075,
+          0.08,
+          0.085,
+          0.09,
+          0.095,
+          0.1
+        ],
+        "loglik": [
+          -11934.509216540051,
+          -11932.893440108972,
+          -11931.338627921876,
+          -11929.844164833039,
+          -11928.409461642039,
+          -11927.033954308037,
+          -11925.717103190682,
+          -11924.458392320357,
+          -11923.257328694512,
+          -11922.11344160428,
+          -11921.026281988163,
+          -11919.99542181582,
+          -11919.020453497316,
+          -11918.100989321887,
+          -11917.236660921699,
+          -11916.427118763808,
+          -11915.672031661987,
+          -11914.971086322988,
+          -11914.323986904168,
+          -11913.730454603057,
+          -11913.19022726467,
+          -11912.70305901113,
+          -11912.268719891803,
+          -11911.886995551713,
+          -11911.557686921089,
+          -11911.280609919995,
+          -11911.05559518384,
+          -11910.882487801924,
+          -11910.76114707495,
+          -11910.691446286448,
+          -11910.67327249008,
+          -11910.70652630864,
+          -11910.791121751809,
+          -11910.92698604033,
+          -11911.114059449686,
+          -11911.352295160112,
+          -11911.641659122533,
+          -11911.982129932992,
+          -11912.373698720086,
+          -11912.816369039596,
+          -11913.31015678417,
+          -11913.855090096495,
+          -11914.451209296643,
+          -11915.098566814506,
+          -11915.797227133771,
+          -11916.547266740308,
+          -11917.34877408181,
+          -11918.201849531457,
+          -11919.106605359208,
+          -11920.063165710784,
+          -11921.07166658933,
+          -11922.13225584531,
+          -11923.245093168456,
+          -11924.410350086047,
+          -11925.6282099618,
+          -11926.898868000515,
+          -11928.222531251835,
+          -11929.599418616763,
+          -11931.029760852374,
+          -11932.513800577719,
+          -11934.051792275372
+        ]
+      }
+    },
+    "scorelines": {
+      "n_cells_abs_pearson_over_2_poisson": 4,
+      "n_cells_abs_pearson_over_2_dc": 4,
+      "p_max_abs_residual_poisson": 0.009,
+      "p_max_abs_residual_dc": 0.008,
+      "observed_0_0": 263,
+      "expected_0_0_poisson": 283.1273100632098,
+      "expected_0_0_dc": 305.25059234242366,
+      "observed_1_1": 455,
+      "expected_1_1_poisson": 431.4819433813842,
+      "expected_1_1_dc": 453.3202021337996,
+      "chi2_pearson_poisson": 39.678924756535686,
+      "chi2_pearson_dc": 37.51799782474674
+    },
+    "goal_envelope": {
+      "home_bins_outside": [
+        0,
+        2,
+        6
+      ],
+      "away_bins_outside": []
+    },
+    "insample_logloss": {
+      "poisson": 0.9318514466844703,
+      "dc": 0.9311075667913649
+    },
+    "heldout": {
+      "train": "2023-24",
+      "test": "2024-25",
+      "rho_2023_24": -0.020066330003122745,
+      "rho_prior_pooled": -0.03988110467512457,
+      "log_loss": {
+        "base_rate": 1.0810879896180008,
+        "poisson": 0.9837373391774855,
+        "pinnacle": 0.9703039994694267,
+        "pinnacle_closing": 0.9664121027623126,
+        "dc_2023_24": 0.9829605346575075,
+        "dc_prior_pooled_rho": 0.982235502864934
+      },
+      "log_loss_ci": {
+        "base_rate": [
+          1.0539060795964774,
+          1.1070055630344389
+        ],
+        "poisson": [
+          0.9292192227007791,
+          1.0411060988103145
+        ],
+        "pinnacle": [
+          0.9212560035960728,
+          1.019048469842514
+        ],
+        "pinnacle_closing": [
+          0.9172246516081433,
+          1.015879869029576
+        ],
+        "dc_2023_24": [
+          0.9291665351266188,
+          1.0399723128687401
+        ],
+        "dc_prior_pooled_rho": [
+          0.9289596566769989,
+          1.0388278976361711
+        ]
+      },
+      "promoted": [
+        "Ipswich",
+        "Leicester",
+        "Southampton"
+      ],
+      "relegated": [
+        "Burnley",
+        "Luton",
+        "Sheffield United"
+      ]
+    },
+    "per_season_summary": {
+      "n_rho_negative": 10,
+      "n_lr_p_below_0_05": 1
+    },
+    "seeds": {
+      "per_season_bootstrap": "115 + 200 + season index",
+      "pooled_bootstrap": 415,
+      "scoreline_null_poisson": 416,
+      "scoreline_null_dc": 417,
+      "goal_envelope": 418,
+      "paired_logloss_bootstrap": 115
+    },
+    "figures": [
+      "figures/fig3_goals_envelope.png",
+      "figures/fig9_dixon_coles.png"
+    ]
+  }
+}

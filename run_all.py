@@ -58,6 +58,80 @@ def fmt_ci(ci, nd=3):
     return f"[{ci[0]:.{nd}f}, {ci[1]:.{nd}f}]"
 
 
+# Headline entries of the three workstream result files that the summary quotes, in order:
+# (results file stem, [(headline key, label, decimals)]).  Every entry carries est, ci, n, how.
+WORKSTREAM_HEADLINES = [
+    ("timeseries", "Home advantage over time, 2005-06..2025-26 (scripts/run_timeseries.py)", [
+        ("common_gamma_20_crowd_seasons", "common gamma, 20 crowd seasons (excl. 2020-21)", 3),
+        ("extra_home_goals_common_20_crowd_seasons", "extra home goals per match, same fit", 3),
+        ("gamma_2020_21", "gamma 2020-21 (closed doors)", 3),
+        ("gamma_2024_25", "gamma 2024-25 (full stadiums)", 3),
+        ("identity_max_abs_gamma_minus_goals_ratio", "verification: max |gamma-hat - sum H / sum A|", 9),
+        ("cochran_q_10_core_crowd_seasons", "Cochran Q, 10 core crowd seasons", 2),
+        ("cochran_q_11_core_seasons", "Cochran Q, 11 core seasons (adds 2020-21)", 2),
+        ("cochran_q_20_crowd_seasons", "Cochran Q, 20 crowd seasons since 2005-06", 2),
+        ("trend_log_gamma_per_season_20_crowd_seasons", "trend in log gamma per season, 20 crowd seasons", 4),
+        ("z_2020_21_random_effects", "z of 2020-21 vs other seasons, random effects", 2),
+        ("z_2024_25_random_effects", "z of 2024-25 vs other seasons, random effects", 2),
+        ("crowd_gamma_closed_minus_full_e0", "gamma closed doors - full crowds, PL 2019-20..2021-22 (date flag)", 3),
+        ("ci_coverage_percentile", "coverage of the 95% bootstrap percentile interval", 3),
+        ("max_abs_theta_all_fits", "max |theta| over all fits (bounds +-5)", 2),
+    ]),
+    ("rolling", "Rolling-origin forecast evaluation, test seasons 2016-17..2025-26 (scripts/run_rolling.py)", [
+        ("logloss_poisson_mean10", "Poisson log-loss, mean of 10 seasons", 4),
+        ("logloss_base_rate_mean10", "base rate (prior seasons only)", 4),
+        ("logloss_pinnacle_prematch_mean10", "Pinnacle pre-match (odds matches)", 4),
+        ("logloss_pinnacle_closing_mean10", "Pinnacle closing (odds matches)", 4),
+        ("poisson_minus_base_logloss_mean10", "Poisson - base rate", 4),
+        ("poisson_minus_pinnacle_prematch_logloss_mean10", "Poisson - Pinnacle pre-match", 4),
+        ("poisson_minus_pinnacle_detectable_gap_per_season", "detectable gap in one season", 4),
+        ("decay_gain_vs_no_decay", "gain from time decay (no decay - 365-day half-life)", 4),
+        ("home_goals_pred_minus_realised_2024_25_rolling", "2024-25 mean lambda - realised home goals, rolling", 3),
+        ("home_goals_pred_minus_realised_2024_25_frozen", "same, frozen 2023-24 fit", 3),
+        ("logloss_2024_25_param_and_match", "2024-25 log-loss, parameter + imputation + match uncertainty", 4),
+        ("betting_return_margin_0pct", "flat-stake return at Pinnacle closing, margin 0", 3),
+    ]),
+    ("dixon_coles", "Dixon-Coles correction (scripts/run_dixon_coles.py)", [
+        ("pooled_rho", "pooled rho, 11 seasons", 4),
+        ("pooled_lr_statistic", "LR statistic vs rho = 0", 2),
+        ("insample_logloss_change_per_match", "in-sample log-loss change per match, DC - Poisson", 5),
+        ("heldout_logloss_dc_minus_poisson", "held-out 2024-25 log-loss, DC - Poisson", 5),
+        ("max_abs_pearson_residual_poisson", "largest |Pearson residual| in the pooled scoreline table", 2),
+        ("pearson_dispersion_pooled", "Pearson dispersion, pooled", 3),
+    ]),
+]
+
+
+def workstream_summary_lines(results_dir=RESULTS):
+    """Markdown lines quoting the headline numbers of results/{timeseries,rolling,dixon_coles}.json.
+
+    Each file is written by its own script (under scripts/); a missing file is reported as
+    such rather than invented.
+    """
+    lines = ["## Workstream results (each number: estimate, 95% interval, how obtained)", ""]
+    for stem, title, keys in WORKSTREAM_HEADLINES:
+        path = os.path.join(results_dir, f"{stem}.json")
+        if not os.path.exists(path):
+            lines += [f"### {title}", "", f"- results/{stem}.json not found; run the script to produce it.", ""]
+            continue
+        with open(path) as fh:
+            res = json.load(fh)
+        meta, head = res["meta"], res["headline"]
+        lines += [f"### {title}", "",
+                  f"Generated {meta.get('generated')}, seed {meta.get('seed')}, runtime {float(meta.get('runtime_seconds', 0)):.0f} s. "
+                  f"Full table of {len(head)} headline entries in results/{stem}.json and review/results_{stem}.md.", ""]
+        for key, label, nd in keys:
+            h = head.get(key)
+            if h is None:
+                lines.append(f"- {label}: key '{key}' not in file.")
+                continue
+            ci = h.get("ci")
+            ci_s = f" {fmt_ci(ci, nd)}" if ci and ci[0] is not None else ""
+            lines.append(f"- {label}: {h['est']:.{nd}f}{ci_s} (n = {h.get('n')}; {h.get('how', '')})")
+        lines.append("")
+    return lines
+
+
 def main():
     t0 = time.time()
     np.random.seed(SEED)
@@ -71,7 +145,12 @@ def main():
         "identifiability": "geometric mean of alpha fixed to 1 (one constraint, 40 free parameters per season); "
                            "see diagnostics.two_constraint_fit for the 39-parameter variant",
         "log_loss_units": "nats per match", "brier": "multi-class sum over H/D/A, range 0..2",
-        "score_grid": "0..10 goals each side, not renormalised", "implied_probabilities": "proportional margin removal",
+        "score_grid": "0..10 goals each side, renormalised to sum to 1 (outcome_probs(normalise=True))",
+        "implied_probabilities": "proportional margin removal",
+        "bootstrap_seeds": f"per-season fit bootstrap uses seed {SEED} + index of the season in core_seasons; "
+                           f"pooled fits use {SEED} + 100 and {SEED} + 101; held-out paired bootstrap uses {SEED}",
+        "odds_labels": "football-data.co.uk's non-closing odds are pre-match odds collected on Friday (weekend games) "
+                       "or Tuesday (midweek games) afternoons, 1-3 days before kick-off; they are not opening odds",
     }}
     notes = []
 
@@ -133,8 +212,10 @@ def main():
         "logloss": logloss_base,
         "logloss_mean_over_seasons": {
             "base_rate": float(ll_tab["base_rate"].mean()),
-            "pinnacle_opening": float(ll_tab["PS"].astype(float).mean()),
+            "pinnacle_prematch": float(ll_tab["PS"].astype(float).mean()),
             "pinnacle_closing": float(ll_tab["PSC"].astype(float).mean()),
+            "note": "base rate here is the pooled 11-season frequency, so it is in-sample for this table; "
+                    "the held-out comparison below uses the pre-2024-25 frequency",
         },
     }
     F.fig1_baselines(freq, pooled)
@@ -148,7 +229,7 @@ def main():
         d = make_design(g)
         f = fit_poisson(d)
         assert f.converged, f"{s}: optimiser did not converge"
-        b = bootstrap_fit(d, f, n_boot=N_BOOT, seed=SEED)
+        b = bootstrap_fit(d, f, n_boot=N_BOOT, seed=SEED + CORE_SEASONS.index(s))   # one seed per season
         f2 = fit_poisson(d, constraint="both")
         ha = home_advantage_goals(f, d)
         fits[s], designs[s], boots[s] = f, d, b
@@ -170,7 +251,7 @@ def main():
     fp = fit_poisson(dp)
     assert fp.converged
     strata = pd.factorize(core["season"])[0]
-    bp = bootstrap_fit(dp, fp, n_boot=N_BOOT_POOLED, seed=SEED, stratify=strata)
+    bp = bootstrap_fit(dp, fp, n_boot=N_BOOT_POOLED, seed=SEED + 100, stratify=strata)
     ha_pooled = home_advantage_goals(fp, dp)
     pooled_gamma = {"gamma": fp.gamma, "gamma_ci": bp["gamma_ci"], "gamma_se": bp["gamma_se"],
                     "ha_goals": ha_pooled, "ha_goals_ci": bp["ha_goals_ci"], "n_matches": dp.n_matches,
@@ -181,7 +262,7 @@ def main():
     core_nc = core[core["season"] != COVID]
     dnc = make_design(core_nc, season="season")
     fnc = fit_poisson(dnc)
-    bnc = bootstrap_fit(dnc, fnc, n_boot=N_BOOT_POOLED, seed=SEED, stratify=pd.factorize(core_nc["season"])[0])
+    bnc = bootstrap_fit(dnc, fnc, n_boot=N_BOOT_POOLED, seed=SEED + 101, stratify=pd.factorize(core_nc["season"])[0])
     pooled_gamma_excl_covid = {"gamma": fnc.gamma, "gamma_ci": bnc["gamma_ci"], "ha_goals": home_advantage_goals(fnc, dnc),
                                "ha_goals_ci": bnc["ha_goals_ci"], "n_matches": dnc.n_matches}
     numbers["pooled_gamma"] = pooled_gamma
@@ -212,15 +293,18 @@ def main():
 
     goals_tab = ha_tab[["ha_goals", "ha_goals_lo", "ha_goals_hi"]].rename(columns={"ha_goals": "est", "ha_goals_lo": "lo", "ha_goals_hi": "hi"})
     gamma_tab = ha_tab[["gamma", "gamma_lo", "gamma_hi"]].rename(columns={"gamma": "est", "gamma_lo": "lo", "gamma_hi": "hi"})
+    # The 11-season extra-goals figure.  The report's home-advantage figure is
+    # figures/fig2_home_advantage_2005_2026 (scripts/run_timeseries.py, 21 seasons with the
+    # common-gamma band); the gamma version of this figure (old fig2b) and the 2023-24
+    # histogram figure (old fig3) were retired on 13 Oct 2026 because they duplicated it and
+    # figures/fig3_goals_envelope (scripts/run_dixon_coles.py, pooled with a bootstrap band).
     F.fig2_home_advantage(goals_tab, {"est": ha_pooled, "lo": bp["ha_goals_ci"][0], "hi": bp["ha_goals_ci"][1]},
                           kind="goals", n_boot=N_BOOT, name="fig2_home_advantage")
-    F.fig2_home_advantage(gamma_tab, {"est": fp.gamma, "lo": bp["gamma_ci"][0], "hi": bp["gamma_ci"][1]},
-                          kind="gamma", n_boot=N_BOOT, name="fig2b_home_advantage_gamma")
+    del gamma_tab
 
-    # 2023-24 goal distribution, scoreline table, team strengths
+    # 2023-24 scoreline table, team strengths
     d, f = designs[REF_SEASON], fits[REF_SEASON]
     lam, mu = rates(f.log_alpha, f.log_beta, f.log_gamma, d.home, d.away)
-    F.fig3_goals_vs_poisson(d.x, d.y, lam, mu, REF_SEASON)
     grid = score_grid(lam, mu, 10)
     rows = []
     for i in range(4):
@@ -303,22 +387,29 @@ def main():
     lb = {t: np.log(f.strength(t)[1]) for t in teams_ref} | {t: np.log(rel_beta) for t in promoted}
     lam_h = np.exp(hold["home"].map(la).to_numpy() + hold["away"].map(lb).to_numpy() + f.log_gamma)
     mu_h = np.exp(hold["away"].map(la).to_numpy() + hold["home"].map(lb).to_numpy())
-    p_pois = outcome_probs(lam_h, mu_h)
+    p_pois = outcome_probs(lam_h, mu_h)                      # renormalised 0..10 grid (default)
+    p_pois_raw = outcome_probs(lam_h, mu_h, normalise=False)  # legacy: raw grid mass < 1
     p_pin = hold[["p_PS_H", "p_PS_D", "p_PS_A"]].to_numpy()
     p_pinc = hold[["p_PSC_H", "p_PSC_D", "p_PSC_A"]].to_numpy()
     ok = ~np.isnan(p_pin).any(axis=1) & ~np.isnan(p_pinc).any(axis=1)
     if not ok.all():
         notes.append(f"{HOLDOUT_SEASON}: {int((~ok).sum())} matches lack Pinnacle odds and are excluded from the preliminary comparison.")
-    hold, p_pois, p_pin, p_pinc, lam_h, mu_h = hold[ok], p_pois[ok], p_pin[ok], p_pinc[ok], lam_h[ok], mu_h[ok]
+    hold, p_pois, p_pois_raw, p_pin, p_pinc, lam_h, mu_h = (hold[ok], p_pois[ok], p_pois_raw[ok], p_pin[ok],
+                                                            p_pinc[ok], lam_h[ok], mu_h[ok])
     oi = outcome_to_index(hold["outcome"])
     n_hold = len(hold)
+    # Headline base rate: H/D/A frequencies from the seasons BEFORE the test season only
+    # (2015-16 .. 2023-24), so the baseline sees no test-season data.  The pooled
+    # 11-season frequency (which includes 2024-25) is kept only under "legacy".
     base_prior = core[core["season"] < HOLDOUT_SEASON]["outcome"].value_counts(normalize=True)
-    p_base = base_rate_probs(base_p, n_hold)
-    p_base_prior = base_rate_probs([base_prior[k] for k in "HDA"], n_hold)
+    base_prior_p = [float(base_prior[k]) for k in "HDA"]
+    p_base_prior = base_rate_probs(base_prior_p, n_hold)
+    p_base_leaky = base_rate_probs(base_p, n_hold)
     p_uniform = base_rate_probs([1 / 3] * 3, n_hold)
     p_2324 = base_rate_probs([np.mean(d.x > d.y), np.mean(d.x == d.y), np.mean(d.x < d.y)], n_hold)
-    sets = {"base_rate": p_base, "poisson": p_pois, "pinnacle": p_pin, "pinnacle_closing": p_pinc,
-            "base_rate_pre_2024_25_only": p_base_prior, "base_rate_2023_24_only": p_2324, "uniform": p_uniform}
+    sets = {"base_rate": p_base_prior, "poisson": p_pois, "pinnacle": p_pin, "pinnacle_closing": p_pinc,
+            "base_rate_all_11_seasons_leaky": p_base_leaky, "base_rate_2023_24_only": p_2324, "uniform": p_uniform,
+            "poisson_unnormalised_legacy": p_pois_raw}
     ll = {k: log_loss(p, oi) for k, p in sets.items()}
     br = {k: brier(p, oi) for k, p in sets.items()}
     bll = bootstrap_metrics(sets, oi, log_loss, n_boot=N_BOOT_EVAL, seed=SEED)
@@ -329,9 +420,28 @@ def main():
         diffs[k] = {"est": ll[k] - ll["base_rate"], "ci": [float(np.percentile(s_, 2.5)), float(np.percentile(s_, 97.5))]}
     s_ = bll["poisson"]["samples"] - bll["pinnacle"]["samples"]
     diffs["poisson_minus_pinnacle"] = {"est": ll["poisson"] - ll["pinnacle"], "ci": [float(np.percentile(s_, 2.5)), float(np.percentile(s_, 97.5))]}
+    s_ = bll["poisson_unnormalised_legacy"]["samples"] - bll["base_rate_all_11_seasons_leaky"]["samples"]
+    legacy = {
+        "explanation": "Numbers as reported before the critique fixes of 13 Oct 2026: the base rate pooled all 11 "
+                       "seasons including the test season, and Poisson probabilities were the raw 0..10 grid mass "
+                       "(not renormalised).  Kept so the write-up can quote before/after.",
+        "base_rate_frequencies_all_11_seasons": {k: float(v) for k, v in zip("HDA", base_p)},
+        "log_loss": {"base_rate_leaky": ll["base_rate_all_11_seasons_leaky"],
+                     "poisson_unnormalised": ll["poisson_unnormalised_legacy"]},
+        "log_loss_ci": {"base_rate_leaky": bll["base_rate_all_11_seasons_leaky"]["ci"],
+                        "poisson_unnormalised": bll["poisson_unnormalised_legacy"]["ci"]},
+        "brier": {"base_rate_leaky": br["base_rate_all_11_seasons_leaky"],
+                  "poisson_unnormalised": br["poisson_unnormalised_legacy"]},
+        "poisson_unnormalised_minus_base_rate_leaky": {
+            "est": ll["poisson_unnormalised_legacy"] - ll["base_rate_all_11_seasons_leaky"],
+            "ci": [float(np.percentile(s_, 2.5)), float(np.percentile(s_, 97.5))]},
+        "max_missing_grid_mass": float((1 - p_pois_raw.sum(axis=1)).max()),
+    }
     prelim = {
         "WARNING": "PRELIMINARY stand-in evaluation. Strengths fitted on 2023-24 only, applied unchanged to 2024-25; "
-                   "to be replaced by a rolling / time-decayed fit.",
+                   "the rolling-origin evaluation in results/rolling.json is the final one.",
+        "base_rate_definition": "H/D/A frequencies over 2015-16 .. 2023-24 only (no test-season data)",
+        "base_rate_frequencies": {k: v for k, v in zip("HDA", base_prior_p)},
         "train_season": REF_SEASON, "test_season": HOLDOUT_SEASON, "n_test_matches": n_hold,
         "promoted_teams": promoted, "relegated_teams": relegated,
         "promoted_team_strength": {"alpha": float(rel_alpha), "beta": float(rel_beta),
@@ -345,6 +455,7 @@ def main():
         "realised_mean_home_goals": float(hold["home_goals"].mean()), "realised_mean_away_goals": float(hold["away_goals"].mean()),
     }
     numbers["preliminary"] = prelim
+    numbers["legacy"] = legacy
     pd.DataFrame({"forecast": list(ll), "log_loss": list(ll.values()), "log_loss_lo": [bll[k]["ci"][0] for k in ll],
                   "log_loss_hi": [bll[k]["ci"][1] for k in ll], "brier": list(br.values()),
                   "brier_lo": [bbr[k]["ci"][0] for k in ll], "brier_hi": [bbr[k]["ci"][1] for k in ll]}).to_csv(
@@ -352,9 +463,9 @@ def main():
     for k in ["base_rate", "poisson", "pinnacle", "pinnacle_closing"]:
         print(f"  {k:18s} log-loss {ll[k]:.4f} {fmt_ci(bll[k]['ci'], 4)}   Brier {br[k]:.4f}")
     F.fig5_logloss_comparison(
-        [("Base rate\n(pooled H/D/A)", ll["base_rate"], *bll["base_rate"]["ci"]),
+        [("Base rate\n(2015-16..2023-24 H/D/A)", ll["base_rate"], *bll["base_rate"]["ci"]),
          ("Poisson\n(2023-24 strengths)", ll["poisson"], *bll["poisson"]["ci"]),
-         ("Pinnacle\n(opening odds)", ll["pinnacle"], *bll["pinnacle"]["ci"])],
+         ("Pinnacle\n(pre-match odds)", ll["pinnacle"], *bll["pinnacle"]["ci"])],
         [("Poisson − base", diffs["poisson"]["est"], *diffs["poisson"]["ci"]),
          ("Pinnacle − base", diffs["pinnacle"]["est"], *diffs["pinnacle"]["ci"]),
          ("Poisson − Pinnacle", diffs["poisson_minus_pinnacle"]["est"], *diffs["poisson_minus_pinnacle"]["ci"])],
@@ -417,19 +528,26 @@ def main():
         f"(the only season with more away than home wins)." if freq.loc[COVID, "A"] > freq.loc[COVID, "H"] else
         f"- Pooled outcome frequencies 2015-16..2025-26: home {pooled['H']:.1%}, draw {pooled['D']:.1%}, away {pooled['A']:.1%}. "
         f"2020-21: home {freq.loc[COVID, 'H']:.1%}, draw {freq.loc[COVID, 'D']:.1%}, away {freq.loc[COVID, 'A']:.1%}.",
-        f"- Bookmaker overround (mean over matches and seasons): Pinnacle opening {ps_over:.2%}, Pinnacle closing {psc_over:.2%}, "
-        f"Bet365 {b365_over:.2%}. Per-season values are in results/overround_by_season.csv.",
-        f"- Log-loss per season (nats per match), mean over seasons: base rate {ll_tab['base_rate'].mean():.4f}, "
-        f"Pinnacle opening {ll_tab['PS'].astype(float).mean():.4f}, Pinnacle closing {ll_tab['PSC'].astype(float).mean():.4f}.",
+        f"- Bookmaker overround (mean over matches and seasons): Pinnacle pre-match {ps_over:.2%}, Pinnacle closing {psc_over:.2%}, "
+        f"Bet365 {b365_over:.2%}. Per-season values are in results/overround_by_season.csv. 'Pre-match' odds are "
+        f"football-data.co.uk's Friday/Tuesday-afternoon collection, 1-3 days before kick-off, not opening odds.",
+        f"- Log-loss per season (nats per match), mean over seasons: base rate {ll_tab['base_rate'].mean():.4f} (pooled 11-season "
+        f"frequency, in-sample for this table), Pinnacle pre-match {ll_tab['PS'].astype(float).mean():.4f}, "
+        f"Pinnacle closing {ll_tab['PSC'].astype(float).mean():.4f}.",
         f"- PRELIMINARY held-out forecast of {HOLDOUT_SEASON} ({n_hold} matches) using 2023-24 strengths unchanged "
-        f"(promoted {', '.join(promoted)} given the mean strength of relegated {', '.join(relegated)}):",
+        f"(promoted {', '.join(promoted)} given the mean strength of relegated {', '.join(relegated)}). "
+        f"Base rate = H/D/A frequencies over 2015-16..2023-24 only; Poisson probabilities renormalised on the 0..10 grid:",
         f"    - log-loss: base rate {ll['base_rate']:.4f} {fmt_ci(bll['base_rate']['ci'], 4)}, "
-        f"Poisson {ll['poisson']:.4f} {fmt_ci(bll['poisson']['ci'], 4)}, Pinnacle {ll['pinnacle']:.4f} {fmt_ci(bll['pinnacle']['ci'], 4)} "
-        f"(Pinnacle closing {ll['pinnacle_closing']:.4f}).",
-        f"    - Brier: base rate {br['base_rate']:.4f}, Poisson {br['poisson']:.4f}, Pinnacle {br['pinnacle']:.4f}.",
+        f"Poisson {ll['poisson']:.4f} {fmt_ci(bll['poisson']['ci'], 4)}, Pinnacle pre-match {ll['pinnacle']:.4f} {fmt_ci(bll['pinnacle']['ci'], 4)} "
+        f"(Pinnacle closing {ll['pinnacle_closing']:.4f} {fmt_ci(bll['pinnacle_closing']['ci'], 4)}).",
+        f"    - Brier: base rate {br['base_rate']:.4f}, Poisson {br['poisson']:.4f}, Pinnacle pre-match {br['pinnacle']:.4f}.",
         f"    - Paired differences: Poisson − base {diffs['poisson']['est']:+.4f} {fmt_ci(diffs['poisson']['ci'], 4)}; "
         f"Poisson − Pinnacle {diffs['poisson_minus_pinnacle']['est']:+.4f} {fmt_ci(diffs['poisson_minus_pinnacle']['ci'], 4)}.",
-        "    - This is a stand-in: the final evaluation will use a rolling / time-decayed fit.",
+        f"    - Before the 13 Oct fixes (base rate pooled over all 11 seasons incl. 2024-25, Poisson not renormalised): "
+        f"base rate {legacy['log_loss']['base_rate_leaky']:.4f}, Poisson {legacy['log_loss']['poisson_unnormalised']:.4f}; "
+        f"Poisson − base {legacy['poisson_unnormalised_minus_base_rate_leaky']['est']:+.4f} "
+        f"{fmt_ci(legacy['poisson_unnormalised_minus_base_rate_leaky']['ci'], 4)}.",
+        "    - This is a stand-in: the rolling-origin evaluation (results/rolling.json) is the final one.",
         "",
         "## Model checks",
         "",
@@ -451,14 +569,23 @@ def main():
         "## Notes and caveats",
         "",
     ] + [f"- {n}" for n in notes] + [
-        "- Pooled base-rate log-loss uses frequencies from all 11 seasons, so it is in-sample for the per-season table; "
-        "a version using only seasons before 2024-25 is stored in numbers.json (preliminary.log_loss.base_rate_pre_2024_25_only).",
+        "- The per-season base-rate log-loss table uses frequencies from all 11 seasons, so it is in-sample for that table. "
+        "The held-out comparison uses only seasons before 2024-25; the old leaky version is in numbers.json under 'legacy'.",
+        f"- Bootstrap seeds: per-season fits use seed {SEED} + season index; pooled fits {SEED}+100 / {SEED}+101; "
+        f"held-out paired bootstrap {SEED}.",
         "",
+    ] + workstream_summary_lines() + [
         "## Where things are",
         "",
-        "- results/numbers.json: every number above.  results/*.csv: per-season tables, scorelines, team strengths.",
-        "- figures/fig1_baselines: outcome shares by season.  fig2_home_advantage (extra goals) and fig2b (gamma): headline.",
-        "- figures/fig3_goals_vs_poisson: 2023-24 goal histograms vs fitted Poisson.  fig4_parameter_recovery.  fig5_logloss_comparison.",
+        "- results/numbers.json: every number of the run_all.py pipeline.  results/*.csv: per-season tables, scorelines, team strengths.",
+        "- results/timeseries.json, rolling.json, dixon_coles.json: the three workstreams (scripts/run_*.py), each with a",
+        "  'headline' dict of {est, ci, n, how}; prose notes in review/results_*.md.",
+        "- figures/fig1_baselines: outcome shares by season.  fig2_home_advantage_2005_2026: the home-advantage figure (gamma by",
+        "  season with the common-gamma band); fig2_home_advantage: the same 11 seasons in extra goals.",
+        "- figures/fig3_goals_envelope: pooled goal histograms vs fitted Poisson with a bootstrap band.  fig4_parameter_recovery.",
+        "  fig5_logloss_comparison (single split).  fig6_rolling_logloss, fig7_rolling_reliability (rolling evaluation).",
+        "  fig8_crowd_gamma (crowd status, three leagues).  fig9_dixon_coles (rho by season, profile likelihood, residuals).",
+        "- notebooks/final_report.ipynb: the report, in rubric order, executed from a clean kernel.",
     ]
     summary = "\n".join(lines)
     with open(os.path.join(RESULTS, "SUMMARY.md"), "w") as fh:

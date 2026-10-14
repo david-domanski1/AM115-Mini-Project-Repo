@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated": "2026-09-26T13:15:45",
+    "generated": "2026-10-13T16:39:27",
     "seed": 115,
     "n_boot_per_season": 500,
     "n_boot_pooled": 500,
@@ -46,8 +46,10 @@
     "identifiability": "geometric mean of alpha fixed to 1 (one constraint, 40 free parameters per season); see diagnostics.two_constraint_fit for the 39-parameter variant",
     "log_loss_units": "nats per match",
     "brier": "multi-class sum over H/D/A, range 0..2",
-    "score_grid": "0..10 goals each side, not renormalised",
+    "score_grid": "0..10 goals each side, renormalised to sum to 1 (outcome_probs(normalise=True))",
     "implied_probabilities": "proportional margin removal",
+    "bootstrap_seeds": "per-season fit bootstrap uses seed 115 + index of the season in core_seasons; pooled fits use 115 + 100 and 115 + 101; held-out paired bootstrap uses 115",
+    "odds_labels": "football-data.co.uk's non-closing odds are pre-match odds collected on Friday (weekend games) or Tuesday (midweek games) afternoons, 1-3 days before kick-off; they are not opening odds",
     "season_info": {
       "2015-16": {
         "n_matches": 380,
@@ -371,10 +373,10 @@
       }
     },
     "overround_labels": {
-      "B365": "Bet365 (opening)",
-      "PS": "Pinnacle (opening)",
+      "B365": "Bet365 (pre-match, Fri/Tue collection)",
+      "PS": "Pinnacle (pre-match, Fri/Tue collection)",
       "PSC": "Pinnacle (closing)",
-      "Avg": "Market average"
+      "Avg": "Market average (pre-match, Fri/Tue collection)"
     },
     "logloss": {
       "2015-16": {
@@ -512,21 +514,22 @@
     },
     "logloss_mean_over_seasons": {
       "base_rate": 1.0663652603060223,
-      "pinnacle_opening": 0.9568544527831623,
-      "pinnacle_closing": 0.9538159773124358
+      "pinnacle_prematch": 0.9568544527831623,
+      "pinnacle_closing": 0.9538159773124358,
+      "note": "base rate here is the pooled 11-season frequency, so it is in-sample for this table; the held-out comparison below uses the pre-2024-25 frequency"
     }
   },
   "poisson_fit_by_season": {
     "2015-16": {
       "n_matches": 380.0,
-      "gamma": 1.235294209848744,
-      "gamma_lo": 1.094407832510952,
-      "gamma_hi": 1.3807834445810827,
-      "gamma_se": 0.07399743929769476,
-      "ha_goals": 0.28421062476114234,
-      "ha_goals_lo": 0.12329410773803395,
-      "ha_goals_hi": 0.43326688788623946,
-      "ha_goals_se": 0.07977769704716428,
+      "gamma": 1.2352942098957644,
+      "gamma_lo": 1.094407832510984,
+      "gamma_hi": 1.3807834445774039,
+      "gamma_se": 0.07399743928097216,
+      "ha_goals": 0.2842106248086259,
+      "ha_goals_lo": 0.12329410774368334,
+      "ha_goals_hi": 0.43326688786541345,
+      "ha_goals_se": 0.07977769702655532,
       "mean_home_goals": 1.4921052631578948,
       "mean_away_goals": 1.2078947368421054,
       "loglik": -1082.6660158916984,
@@ -534,19 +537,19 @@
       "n_iter": 32.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.3993154743229517,
-      "loglik_two_constraint": -1086.2818040731963
+      "gamma_two_constraint": 1.3993154743229554,
+      "loglik_two_constraint": -1086.281804073196
     },
     "2016-17": {
       "n_matches": 380.0,
       "gamma": 1.3282276094479393,
-      "gamma_lo": 1.1783533704603106,
-      "gamma_hi": 1.4882154551351476,
-      "gamma_se": 0.0776408011933143,
+      "gamma_lo": 1.1839089834156304,
+      "gamma_hi": 1.5061178506457267,
+      "gamma_se": 0.07805745780900322,
       "ha_goals": 0.39473688415930286,
-      "ha_goals_lo": 0.2288649597547905,
-      "ha_goals_hi": 0.5462101536104889,
-      "ha_goals_se": 0.07991851515963774,
+      "ha_goals_lo": 0.2390501671395613,
+      "ha_goals_hi": 0.5629506036007561,
+      "ha_goals_se": 0.07939804671157014,
       "mean_home_goals": 1.5973684210526315,
       "mean_away_goals": 1.2026315789473685,
       "loglik": -1072.1437585417582,
@@ -554,19 +557,19 @@
       "n_iter": 27.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.441399711455869,
+      "gamma_two_constraint": 1.4413997114561579,
       "loglik_two_constraint": -1073.765576546205
     },
     "2017-18": {
       "n_matches": 380.0,
-      "gamma": 1.3348623693002475,
-      "gamma_lo": 1.1802878248861965,
-      "gamma_hi": 1.5034171659767412,
-      "gamma_se": 0.08380412625452253,
-      "ha_goals": 0.3842105161756554,
-      "ha_goals_lo": 0.21681705052165381,
-      "ha_goals_hi": 0.5513544719377268,
-      "ha_goals_se": 0.08183113693391104,
+      "gamma": 1.334862369302417,
+      "gamma_lo": 1.1959898290855746,
+      "gamma_hi": 1.5038128309510295,
+      "gamma_se": 0.08081179244740763,
+      "ha_goals": 0.3842105161857287,
+      "ha_goals_lo": 0.23883612536660828,
+      "ha_goals_hi": 0.5405754941560756,
+      "ha_goals_se": 0.07723716198699844,
       "mean_home_goals": 1.5315789473684212,
       "mean_away_goals": 1.1473684210526316,
       "loglik": -1052.3376818300603,
@@ -574,19 +577,19 @@
       "n_iter": 31.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.379178275701028,
+      "gamma_two_constraint": 1.3791782757004807,
       "loglik_two_constraint": -1052.588952699016
     },
     "2018-19": {
       "n_matches": 380.0,
-      "gamma": 1.252100785446458,
-      "gamma_lo": 1.1203072169325141,
-      "gamma_hi": 1.388448763356023,
-      "gamma_se": 0.07110567209379458,
-      "ha_goals": 0.3157894312529619,
-      "ha_goals_lo": 0.16180686067053396,
-      "ha_goals_hi": 0.45820778579436416,
-      "ha_goals_se": 0.07886097025181937,
+      "gamma": 1.2521007854464645,
+      "gamma_lo": 1.1250641677806983,
+      "gamma_hi": 1.3991793018547276,
+      "gamma_se": 0.06873673868215341,
+      "ha_goals": 0.3157894312529696,
+      "ha_goals_lo": 0.1698711840189524,
+      "ha_goals_hi": 0.46747640209136687,
+      "ha_goals_se": 0.07644331840842922,
       "mean_home_goals": 1.568421052631579,
       "mean_away_goals": 1.2526315789473683,
       "loglik": -1065.0769735866102,
@@ -594,19 +597,19 @@
       "n_iter": 31.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.400528650129506,
+      "gamma_two_constraint": 1.4005286501298841,
       "loglik_two_constraint": -1068.2694459200497
     },
     "2019-20": {
       "n_matches": 380.0,
-      "gamma": 1.2576415684751525,
-      "gamma_lo": 1.1229230525276641,
-      "gamma_hi": 1.4259237059437295,
-      "gamma_se": 0.07807542061482167,
-      "ha_goals": 0.3105259355728917,
-      "ha_goals_lo": 0.15340614946996597,
-      "ha_goals_hi": 0.47269484189354694,
-      "ha_goals_se": 0.08209995828052342,
+      "gamma": 1.2576415684753053,
+      "gamma_lo": 1.1065318018153891,
+      "gamma_hi": 1.4469473574581273,
+      "gamma_se": 0.08658207822668726,
+      "ha_goals": 0.3105259355730726,
+      "ha_goals_lo": 0.14067101912219915,
+      "ha_goals_hi": 0.4963281162256251,
+      "ha_goals_se": 0.0901882709464387,
       "mean_home_goals": 1.5157894736842106,
       "mean_away_goals": 1.2052631578947368,
       "loglik": -1057.711758458186,
@@ -614,39 +617,39 @@
       "n_iter": 31.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.3889137383902324,
+      "gamma_two_constraint": 1.3889137383896266,
       "loglik_two_constraint": -1060.0596181072128
     },
     "2020-21": {
       "n_matches": 380.0,
-      "gamma": 1.0078430521158726,
-      "gamma_lo": 0.8924155045064293,
-      "gamma_hi": 1.134468639022186,
-      "gamma_se": 0.06306510434621804,
-      "ha_goals": 0.010526201831772834,
-      "ha_goals_lo": -0.1482954350902794,
-      "ha_goals_hi": 0.17024147385160213,
-      "ha_goals_se": 0.08413204427001748,
+      "gamma": 1.0078430521155537,
+      "gamma_lo": 0.8769311760617889,
+      "gamma_hi": 1.1344542964720805,
+      "gamma_se": 0.06736525446030484,
+      "ha_goals": 0.010526201831347077,
+      "ha_goals_lo": -0.17760233045755128,
+      "ha_goals_hi": 0.17202623043740686,
+      "ha_goals_se": 0.09041373322359209,
       "mean_home_goals": 1.3526315789473684,
       "mean_away_goals": 1.3421052631578947,
-      "loglik": -1093.9166268263307,
+      "loglik": -1093.9166268263311,
       "n_free_params": 40.0,
       "n_iter": 25.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.2273058966332637,
+      "gamma_two_constraint": 1.2273058966384778,
       "loglik_two_constraint": -1104.095496413458
     },
     "2021-22": {
       "n_matches": 380.0,
       "gamma": 1.159273982339707,
-      "gamma_lo": 1.031063443255052,
-      "gamma_hi": 1.3163778969994946,
-      "gamma_se": 0.06968720495308829,
+      "gamma_lo": 1.0277709486174385,
+      "gamma_hi": 1.3021736467327465,
+      "gamma_se": 0.07275517028574578,
       "ha_goals": 0.2078944957875159,
-      "ha_goals_lo": 0.041598183622866394,
-      "ha_goals_hi": 0.37709351445795697,
-      "ha_goals_se": 0.0835004675446693,
+      "ha_goals_lo": 0.038423697361544454,
+      "ha_goals_hi": 0.37873842565011534,
+      "ha_goals_se": 0.08710844445612909,
       "mean_home_goals": 1.513157894736842,
       "mean_away_goals": 1.305263157894737,
       "loglik": -1074.9666676659178,
@@ -654,19 +657,19 @@
       "n_iter": 27.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.3425903584843728,
-      "loglik_two_constraint": -1080.6237036069058
+      "gamma_two_constraint": 1.3425903583884795,
+      "loglik_two_constraint": -1080.623703606906
     },
     "2022-23": {
       "n_matches": 380.0,
       "gamma": 1.3412527624782071,
-      "gamma_lo": 1.1843980476881681,
-      "gamma_hi": 1.5098071890846134,
-      "gamma_se": 0.0843811195147489,
+      "gamma_lo": 1.189194836980547,
+      "gamma_hi": 1.5081042252237822,
+      "gamma_se": 0.08107199791807072,
       "ha_goals": 0.4157895330391971,
-      "ha_goals_lo": 0.24002866270370915,
-      "ha_goals_hi": 0.5697231719998247,
-      "ha_goals_se": 0.08638131143922453,
+      "ha_goals_lo": 0.2509416419923905,
+      "ha_goals_hi": 0.5768288283413627,
+      "ha_goals_se": 0.08277320015591014,
       "mean_home_goals": 1.6342105263157896,
       "mean_away_goals": 1.2184210526315788,
       "loglik": -1099.1223422833643,
@@ -679,14 +682,14 @@
     },
     "2023-24": {
       "n_matches": 380.0,
-      "gamma": 1.2170818962308092,
-      "gamma_lo": 1.0935647157494606,
-      "gamma_hi": 1.3602060611978128,
-      "gamma_se": 0.07041059482931235,
-      "ha_goals": 0.3210526998640198,
-      "ha_goals_lo": 0.14559926183385616,
-      "ha_goals_hi": 0.5014824115033646,
-      "ha_goals_se": 0.09288369978093676,
+      "gamma": 1.2170818962308059,
+      "gamma_lo": 1.0812191390118542,
+      "gamma_hi": 1.3550622508279793,
+      "gamma_se": 0.06995099337731396,
+      "ha_goals": 0.32105269986401547,
+      "ha_goals_lo": 0.12945880690591394,
+      "ha_goals_hi": 0.49054536443959007,
+      "ha_goals_se": 0.09293427229500452,
       "mean_home_goals": 1.8,
       "mean_away_goals": 1.4789473684210526,
       "loglik": -1135.285382538262,
@@ -694,19 +697,19 @@
       "n_iter": 29.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.635864103460647,
-      "loglik_two_constraint": -1159.354711625729
+      "gamma_two_constraint": 1.6358641025194256,
+      "loglik_two_constraint": -1159.3547116257291
     },
     "2024-25": {
       "n_matches": 380.0,
-      "gamma": 1.0648148217578886,
-      "gamma_lo": 0.9633816238762164,
-      "gamma_hi": 1.178510357905852,
-      "gamma_se": 0.05802944669273135,
-      "ha_goals": 0.0921052728349805,
-      "ha_goals_lo": -0.05456340736358857,
-      "ha_goals_hi": 0.23766186174035944,
-      "ha_goals_se": 0.07981123281490438,
+      "gamma": 1.0648148217578841,
+      "gamma_lo": 0.9546559638268032,
+      "gamma_hi": 1.1825519995465226,
+      "gamma_se": 0.060242999825864806,
+      "ha_goals": 0.0921052728349746,
+      "ha_goals_lo": -0.06848458843503523,
+      "ha_goals_hi": 0.24181784183454608,
+      "ha_goals_se": 0.0831722587959934,
       "mean_home_goals": 1.513157894736842,
       "mean_away_goals": 1.4210526315789473,
       "loglik": -1096.366180816607,
@@ -714,19 +717,19 @@
       "n_iter": 23.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.3896387671108492,
-      "loglik_two_constraint": -1115.2413908411795
+      "gamma_two_constraint": 1.3896387671014867,
+      "loglik_two_constraint": -1115.2413908411797
     },
     "2025-26": {
       "n_matches": 380.0,
-      "gamma": 1.2473118705727257,
-      "gamma_lo": 1.115660574703987,
-      "gamma_hi": 1.3959938475960054,
-      "gamma_se": 0.06903683151994039,
-      "ha_goals": 0.3026316307431195,
-      "ha_goals_lo": 0.15062148463153666,
-      "ha_goals_hi": 0.4574935248641673,
-      "ha_goals_se": 0.07481260639861456,
+      "gamma": 1.2473118705727255,
+      "gamma_lo": 1.128209592019529,
+      "gamma_hi": 1.4076111897026906,
+      "gamma_se": 0.07306841629613128,
+      "ha_goals": 0.3026316307431193,
+      "ha_goals_lo": 0.16534385541400753,
+      "ha_goals_hi": 0.46187088215197497,
+      "ha_goals_se": 0.07864725016094168,
       "mean_home_goals": 1.5263157894736843,
       "mean_away_goals": 1.2236842105263157,
       "loglik": -1072.6990155018232,
@@ -734,21 +737,21 @@
       "n_iter": 24.0,
       "n_boot": 500.0,
       "n_boot_converged": 500.0,
-      "gamma_two_constraint": 1.4497251371741204,
+      "gamma_two_constraint": 1.449725137171227,
       "loglik_two_constraint": -1077.9323598757915
     }
   },
   "pooled_gamma": {
-    "gamma": 1.2170237175840095,
+    "gamma": 1.2170237175792131,
     "gamma_ci": [
-      1.174782671461626,
-      1.2639552311167392
+      1.1769724650462652,
+      1.2610325151196444
     ],
-    "gamma_se": 0.02259336282930195,
-    "ha_goals": 0.27631579494382813,
+    "gamma_se": 0.02203564644437641,
+    "ha_goals": 0.2763157949371476,
     "ha_goals_ci": [
-      0.22909624925252578,
-      0.3294802711837423
+      0.22814464138501636,
+      0.32622183264276094
     ],
     "n_matches": 4180,
     "n_free_params": 430,
@@ -769,70 +772,70 @@
     "description": "one gamma shared across seasons, season-specific alpha and beta; bootstrap stratified by season"
   },
   "pooled_gamma_excluding_2020_21": {
-    "gamma": 1.239194024673012,
+    "gamma": 1.239194024631984,
     "gamma_ci": [
-      1.1950642691530615,
-      1.2900183871703317
+      1.1916357693130406,
+      1.2850164688882226
     ],
-    "ha_goals": 0.30289507664108234,
+    "ha_goals": 0.30289507659519405,
     "ha_goals_ci": [
-      0.2533863999975339,
-      0.36175537430476
+      0.24921174763476445,
+      0.352985218528882
     ],
     "n_matches": 3800
   },
   "covid_comparison": {
     "season": "2020-21",
-    "gamma": 1.0078430521158726,
+    "gamma": 1.0078430521155537,
     "gamma_ci": [
-      0.8924155045064293,
-      1.134468639022186
+      0.8769311760617889,
+      1.1344542964720805
     ],
-    "ha_goals": 0.010526201831772834,
+    "ha_goals": 0.010526201831347077,
     "ha_goals_ci": [
-      -0.1482954350902794,
-      0.17024147385160213
+      -0.17760233045755128,
+      0.17202623043740686
     ],
-    "mean_gamma_other_seasons": 1.243786187589788,
+    "mean_gamma_other_seasons": 1.2437861875947218,
     "mean_gamma_other_seasons_ci": [
-      1.2033873598121148,
-      1.288833119131687
+      1.1983879662515904,
+      1.2928642165088324
     ],
     "range_gamma_other_seasons": [
-      1.0648148217578886,
+      1.0648148217578841,
       1.3412527624782071
     ],
     "ci_overlap_with_mean_of_others": false,
     "n_other_seasons_whose_ci_overlaps_2020_21": 7,
-    "gamma_difference_2020_21_minus_mean_others": -0.23594313547391543,
+    "gamma_difference_2020_21_minus_mean_others": -0.23594313547916812,
     "gamma_difference_ci": [
-      -0.35927405695222936,
-      -0.10741365456244883
+      -0.37362345477970355,
+      -0.09321737146313556
     ],
-    "approx_z": -3.5076309118700717,
+    "approx_z": -3.304333150021815,
     "share_bootstrap_with_gamma_below_1": 0.446
   },
   "scorelines_2023_24": {
     "season": "2023-24",
-    "ratio_0_0": 0.6725656895311712,
-    "ratio_1_1": 1.1045376066829677,
-    "ratio_1_0": 0.8342084521695056,
-    "ratio_0_1": 0.8710836086352755,
+    "ratio_0_0": 0.6725656895311708,
+    "ratio_1_1": 1.1045376066829686,
+    "ratio_1_0": 0.8342084521695066,
+    "ratio_0_1": 0.8710836086352745,
     "observed_0_0": 11,
-    "expected_0_0": 16.35527974623241,
+    "expected_0_0": 16.35527974623242,
     "observed_1_1": 38,
-    "expected_1_1": 34.403536620285514,
+    "expected_1_1": 34.403536620285486,
     "observed_draw_share": 0.21578947368421053,
-    "fitted_draw_share": 0.2034836332485207,
+    "fitted_draw_share": 0.20349346066796392,
     "home_goals_mean": 1.8,
     "home_goals_var": 1.8649076517150398,
     "away_goals_mean": 1.4789473684210526,
     "away_goals_var": 1.6328009998611304,
-    "grid_truncation_max_missing_mass": 0.006057491217026256
+    "grid_truncation_max_missing_mass": 0.006057491217026811
   },
   "team_strengths_2023_24": {
-    "gamma": 1.2170818962308092,
-    "geo_mean_beta": 1.374951897668238,
+    "gamma": 1.2170818962308059,
+    "geo_mean_beta": 1.37495189766824,
     "loglik": -1135.285382538262,
     "n_free_params": 40,
     "top_attack": "Man City",
@@ -840,9 +843,9 @@
     "best_defence": "Arsenal"
   },
   "verification": {
-    "skellam_vs_grid_max_abs_diff_grid40": 1.5543122344752192e-15,
-    "skellam_vs_grid_max_abs_diff_grid10": 0.0027499876400384204,
-    "skellam_vs_grid_draw_max_abs_diff_grid10": 2.012636746540064e-06,
+    "skellam_vs_grid_max_abs_diff_grid40": 8.881784197001252e-16,
+    "skellam_vs_grid_max_abs_diff_grid10": 0.0008897422271845201,
+    "skellam_vs_grid_draw_max_abs_diff_grid10": 0.0005730406942763,
     "skellam_check_lambda_mu_range": [
       0.2,
       4.0
@@ -850,41 +853,47 @@
     "skellam_check_n": 200,
     "recovery_truth_2023_24": {
       "n_sims": 200,
-      "true_gamma": 1.2170818962308092,
-      "gamma_bias": 0.007901282476151739,
-      "gamma_rmse": 0.06891985611492225,
-      "gamma_sd": 0.06863724688852127,
-      "log_alpha_bias": 5.7037707890117414e-18,
-      "log_alpha_rmse": 0.12941219913011323,
-      "log_beta_bias": -0.019785183837973543,
-      "log_beta_rmse": 0.14051923656485124,
-      "alpha_rmse": 0.13000291220569574,
-      "beta_rmse": 0.18815405234765178,
+      "true_gamma": 1.2170818962308059,
+      "gamma_bias": 0.007901282475605287,
+      "gamma_rmse": 0.0689198561123761,
+      "gamma_sd": 0.06863724688601501,
+      "log_alpha_bias": -3.289035710452026e-18,
+      "log_alpha_rmse": 0.12941219913150304,
+      "log_beta_bias": -0.019785183832069755,
+      "log_beta_rmse": 0.14051923656322365,
+      "alpha_rmse": 0.13000291220538318,
+      "beta_rmse": 0.18815405234711524,
       "n_converged": 200,
-      "fitted_gamma_mean": 1.224983178706961
+      "fitted_gamma_mean": 1.2249831787064112
     },
     "recovery_equal_strengths": {
       "n_sims": 200,
       "true_gamma": 1.25,
-      "gamma_bias": 0.0032902826685210496,
-      "gamma_rmse": 0.07932815299165015,
-      "gamma_sd": 0.07945878421529458,
-      "log_alpha_bias": 2.220446049250313e-19,
-      "log_alpha_rmse": 0.15349370636411364,
-      "log_beta_bias": -0.023109411721485444,
-      "log_beta_rmse": 0.15987134808170916,
-      "alpha_rmse": 0.1528259645842727,
-      "beta_rmse": 0.15466001286174733,
+      "gamma_bias": 0.0032902826800138563,
+      "gamma_rmse": 0.07932815299922641,
+      "gamma_sd": 0.07945878422241809,
+      "log_alpha_bias": 9.645062526431048e-19,
+      "log_alpha_rmse": 0.15349370636614906,
+      "log_beta_bias": -0.02310941172668516,
+      "log_beta_rmse": 0.1598713480824227,
+      "alpha_rmse": 0.15282596458603045,
+      "beta_rmse": 0.15466001286232317,
       "n_converged": 200,
-      "fitted_gamma_mean": 1.253290282668521,
+      "fitted_gamma_mean": 1.2532902826800139,
       "fitted_gamma_ci_of_mean": [
-        1.2422778570204003,
-        1.2643027083166418
+        1.2422778570309059,
+        1.2643027083291218
       ]
     }
   },
   "preliminary": {
-    "WARNING": "PRELIMINARY stand-in evaluation. Strengths fitted on 2023-24 only, applied unchanged to 2024-25; to be replaced by a rolling / time-decayed fit.",
+    "WARNING": "PRELIMINARY stand-in evaluation. Strengths fitted on 2023-24 only, applied unchanged to 2024-25; the rolling-origin evaluation in results/rolling.json is the final one.",
+    "base_rate_definition": "H/D/A frequencies over 2015-16 .. 2023-24 only (no test-season data)",
+    "base_rate_frequencies": {
+      "H": 0.44912280701754387,
+      "D": 0.23187134502923976,
+      "A": 0.31900584795321635
+    },
     "train_season": "2023-24",
     "test_season": "2024-25",
     "n_test_matches": 380,
@@ -899,27 +908,28 @@
       "Sheffield United"
     ],
     "promoted_team_strength": {
-      "alpha": 0.7266622561975393,
-      "beta": 2.0060976819432637,
+      "alpha": 0.7266622561975377,
+      "beta": 2.00609768194327,
       "rule": "arithmetic mean of the three relegated teams' alpha and beta"
     },
     "log_loss": {
-      "base_rate": 1.0802934150907748,
-      "poisson": 0.9838188948470125,
+      "base_rate": 1.0810879896180008,
+      "poisson": 0.9837373391774855,
       "pinnacle": 0.9703039994694265,
       "pinnacle_closing": 0.9664121027623124,
-      "base_rate_pre_2024_25_only": 1.0810879896180008,
+      "base_rate_all_11_seasons_leaky": 1.0802934150907748,
       "base_rate_2023_24_only": 1.0833948030812752,
-      "uniform": 1.0986122886681093
+      "uniform": 1.0986122886681093,
+      "poisson_unnormalised_legacy": 0.9838188948470121
     },
     "log_loss_ci": {
       "base_rate": [
-        1.0544823258988667,
-        1.1048366839130932
+        1.0539060795964774,
+        1.1070055630344389
       ],
       "poisson": [
-        0.9293057058766748,
-        1.0411672860585528
+        0.9292192227007791,
+        1.0411060988103145
       ],
       "pinnacle": [
         0.9212560035960728,
@@ -929,9 +939,9 @@
         0.9172246516081433,
         1.015879869029576
       ],
-      "base_rate_pre_2024_25_only": [
-        1.0539060795964774,
-        1.1070055630344389
+      "base_rate_all_11_seasons_leaky": [
+        1.0544823258988667,
+        1.1048366839130932
       ],
       "base_rate_2023_24_only": [
         1.0529536051227315,
@@ -940,25 +950,30 @@
       "uniform": [
         1.0986122886681093,
         1.0986122886681093
+      ],
+      "poisson_unnormalised_legacy": [
+        0.9293057058766748,
+        1.0411672860585524
       ]
     },
     "brier": {
-      "base_rate": 0.6551338110391245,
-      "poisson": 0.587807023913152,
+      "base_rate": 0.6557306521664787,
+      "poisson": 0.5878034624463865,
       "pinnacle": 0.578771073917252,
       "pinnacle_closing": 0.5750793021671528,
-      "base_rate_pre_2024_25_only": 0.6557306521664787,
+      "base_rate_all_11_seasons_leaky": 0.6551338110391245,
       "base_rate_2023_24_only": 0.657229916897507,
-      "uniform": 0.666666666666667
+      "uniform": 0.666666666666667,
+      "poisson_unnormalised_legacy": 0.5878070239131519
     },
     "brier_ci": {
       "base_rate": [
-        0.6375460182917057,
-        0.6716629598681347
+        0.6372155706029206,
+        0.6731202720495196
       ],
       "poisson": [
-        0.5500459713010574,
-        0.627081069407042
+        0.5500378477260279,
+        0.627084452217003
       ],
       "pinnacle": [
         0.5436836175770624,
@@ -968,9 +983,9 @@
         0.539809106078441,
         0.6097093172311205
       ],
-      "base_rate_pre_2024_25_only": [
-        0.6372155706029206,
-        0.6731202720495196
+      "base_rate_all_11_seasons_leaky": [
+        0.6375460182917057,
+        0.6716629598681347
       ],
       "base_rate_2023_24_only": [
         0.6368421052631579,
@@ -979,85 +994,123 @@
       "uniform": [
         0.666666666666667,
         0.666666666666667
+      ],
+      "poisson_unnormalised_legacy": [
+        0.5500459713010571,
+        0.6270810694070418
       ]
     },
     "log_loss_paired_differences": {
       "poisson": {
-        "est": -0.09647452024376235,
+        "est": -0.09735065044051527,
         "ci": [
-          -0.1397960140185996,
-          -0.051332700911710334
+          -0.1404986411570848,
+          -0.052181902076390715
         ]
       },
       "pinnacle": {
-        "est": -0.10998941562134834,
+        "est": -0.11078399014857432,
         "ci": [
-          -0.1488439580703541,
-          -0.07151545344677894
+          -0.14973309352807895,
+          -0.07247321224378006
         ]
       },
       "pinnacle_closing": {
-        "est": -0.11388131232846244,
+        "est": -0.11467588685568841,
         "ci": [
-          -0.1547872226323272,
-          -0.07343056230707133
+          -0.15561895625341216,
+          -0.07455532970359585
         ]
       },
       "poisson_minus_pinnacle": {
-        "est": 0.01351489537758599,
+        "est": 0.013433339708059044,
         "ci": [
-          -0.00957465905589892,
-          0.03711738420893958
+          -0.009659575780201064,
+          0.03704894383967373
         ]
       }
     },
     "n_boot": 2000,
     "poisson_mean_probs": {
-      "H": 0.4551142506152521,
-      "D": 0.20387680809450073,
-      "A": 0.34092741911430713
+      "H": 0.45517228554709965,
+      "D": 0.2038857566520688,
+      "A": 0.3409419578008321
     },
     "realised_frequencies": {
       "H": 0.40789473684210525,
       "D": 0.24473684210526317,
       "A": 0.3473684210526316
     },
-    "poisson_mean_lambda": 1.799862667180437,
-    "poisson_mean_mu": 1.4788344751116962,
+    "poisson_mean_lambda": 1.7998626671804356,
+    "poisson_mean_mu": 1.4788344751116995,
     "realised_mean_home_goals": 1.513157894736842,
     "realised_mean_away_goals": 1.4210526315789473
+  },
+  "legacy": {
+    "explanation": "Numbers as reported before the critique fixes of 13 Oct 2026: the base rate pooled all 11 seasons including the test season, and Poisson probabilities were the raw 0..10 grid mass (not renormalised).  Kept so the write-up can quote before/after.",
+    "base_rate_frequencies_all_11_seasons": {
+      "H": 0.4433014354066986,
+      "D": 0.23684210526315788,
+      "A": 0.31985645933014356
+    },
+    "log_loss": {
+      "base_rate_leaky": 1.0802934150907748,
+      "poisson_unnormalised": 0.9838188948470121
+    },
+    "log_loss_ci": {
+      "base_rate_leaky": [
+        1.0544823258988667,
+        1.1048366839130932
+      ],
+      "poisson_unnormalised": [
+        0.9293057058766748,
+        1.0411672860585524
+      ]
+    },
+    "brier": {
+      "base_rate_leaky": 0.6551338110391245,
+      "poisson_unnormalised": 0.5878070239131519
+    },
+    "poisson_unnormalised_minus_base_rate_leaky": {
+      "est": -0.09647452024376268,
+      "ci": [
+        -0.13979601401859984,
+        -0.051332700911710556
+      ]
+    },
+    "max_missing_grid_mass": 0.0020108784374526234
   },
   "diagnostics": {
     "two_constraint_fit": {
       "explanation": "Imposing geometric-mean(alpha)=1 AND geometric-mean(beta)=1 removes one more degree of freedom than the model has non-identifiable directions (only alpha->c*alpha, beta->beta/c leaves the likelihood unchanged). It forces the geometric mean of mu to equal 1 and pushes the away-goal level into gamma. Reported here only to document why the 40-parameter fit is used.",
       "gamma_by_season": {
-        "2015-16": 1.3993154743229517,
-        "2016-17": 1.441399711455869,
-        "2017-18": 1.379178275701028,
-        "2018-19": 1.400528650129506,
-        "2019-20": 1.3889137383902324,
-        "2020-21": 1.2273058966332637,
-        "2021-22": 1.3425903584843728,
+        "2015-16": 1.3993154743229554,
+        "2016-17": 1.4413997114561579,
+        "2017-18": 1.3791782757004807,
+        "2018-19": 1.4005286501298841,
+        "2019-20": 1.3889137383896266,
+        "2020-21": 1.2273058966384778,
+        "2021-22": 1.3425903583884795,
         "2022-23": 1.5002307273951279,
-        "2023-24": 1.635864103460647,
-        "2024-25": 1.3896387671108492,
-        "2025-26": 1.4497251371741204
+        "2023-24": 1.6358641025194256,
+        "2024-25": 1.3896387671014867,
+        "2025-26": 1.449725137171227
       },
       "loglik_penalty_by_season": {
-        "2015-16": 3.615788181497919,
+        "2015-16": 3.6157881814976918,
         "2016-17": 1.6218180044468227,
         "2017-18": 0.2512708689557712,
         "2018-19": 3.192472333439582,
         "2019-20": 2.347859649026759,
-        "2020-21": 10.178869587127338,
-        "2021-22": 5.657035940987953,
+        "2020-21": 10.178869587126883,
+        "2021-22": 5.65703594098818,
         "2022-23": 2.9965884785299295,
-        "2023-24": 24.06932908746694,
-        "2024-25": 18.875210024572425,
+        "2023-24": 24.069329087467167,
+        "2024-25": 18.875210024572652,
         "2025-26": 5.233344373968293
       }
     },
-    "runtime_seconds": 53.6,
+    "runtime_seconds": 26.3,
     "notes": [
       "All seasons 2015-16 .. 2025-26 are complete (380 matches each) as of the run date; 2025-26 was specified as 'current, partial' but the season has finished.",
       "Pinnacle odds are missing for some matches: {'2025-26': 170} (season: matches without PSH). Pinnacle log-loss and overround for those seasons use only the matches with odds."
