@@ -294,8 +294,13 @@ def main():
 
     # ------------------------------------------------------------ 8. outputs
     lab = {None: "no decay"}
-    how_ll = (f"mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from {N_BOOT_EVAL} "
-              "match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate")
+    def how_mean(what):
+        return (f"mean over the 10 test seasons of the per-season mean {what}; 95% CI from {N_BOOT_EVAL} "
+                "match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate")
+    how_ll = how_mean("log-loss (nats/match)")
+    how_br = how_mean("Brier score")
+    how_citl = how_mean("difference (predicted probability - realised share)")
+    how_goals = how_mean("difference (goals per match)")
     pin_note = "Pinnacle and the paired Poisson values use the 3,630 matches with odds (2025-26: 210 of 380)"
     head = {
         "logloss_poisson_mean10": {**mean10("ll_poisson"), "n": int(seas["n"].sum()),
@@ -309,9 +314,9 @@ def main():
                                             "how": "Pinnacle closing odds, margin removed proportionally; " + pin_note + "; " + how_ll},
         "logloss_poisson_on_odds_matches_mean10": {**mean10("ll_poisson_o"), "n": int(seas["n_odds"].sum()),
                                                    "how": "same Poisson forecasts restricted to matches with Pinnacle odds; " + how_ll},
-        "brier_poisson_mean10": {**mean10("br_poisson"), "n": int(seas["n"].sum()), "how": "multi-class Brier (0..2); " + how_ll},
-        "brier_base_rate_mean10": {**mean10("br_base"), "n": int(seas["n"].sum()), "how": "multi-class Brier (0..2); " + how_ll},
-        "brier_pinnacle_prematch_mean10": {**mean10("br_ps"), "n": int(seas["n_odds"].sum()), "how": "multi-class Brier; " + pin_note + "; " + how_ll},
+        "brier_poisson_mean10": {**mean10("br_poisson"), "n": int(seas["n"].sum()), "how": "multi-class Brier (0..2); " + how_br},
+        "brier_base_rate_mean10": {**mean10("br_base"), "n": int(seas["n"].sum()), "how": "multi-class Brier (0..2); " + how_br},
+        "brier_pinnacle_prematch_mean10": {**mean10("br_ps"), "n": int(seas["n_odds"].sum()), "how": "multi-class Brier; " + pin_note + "; " + how_br},
         "poisson_minus_base_logloss_mean10": {**mean10("ll_poisson-ll_base"), "n": int(seas["n"].sum()),
                                               "how": "paired difference (negative = Poisson better), all 3,800 matches; " + how_ll},
         "poisson_minus_pinnacle_prematch_logloss_mean10": {**mean10("ll_poisson_o-ll_ps"), "n": int(seas["n_odds"].sum()),
@@ -373,13 +378,13 @@ def main():
             "est": float(ll_fixed.std(ddof=1)), "ci": pct(ll_fixed - ll_fixed.mean() + float(r24["ll_poisson"])), "n": 380,
             "how": "SD over the training-set bootstrap of the log-loss on the fixed 380 test matches (parameter + imputation only); "
                    "'ci' is the percentile interval of that log-loss re-centred on the point estimate"},
-        "citl_home_mean10": {**citl10["H"], "n": 3800, "how": "mean predicted P(home) - realised home share, rolling Poisson; " + how_ll},
-        "citl_draw_mean10": {**citl10["D"], "n": 3800, "how": "mean predicted P(draw) - realised draw share; " + how_ll},
-        "citl_away_mean10": {**citl10["A"], "n": 3800, "how": "mean predicted P(away) - realised away share; " + how_ll},
+        "citl_home_mean10": {**citl10["H"], "n": 3800, "how": "mean predicted P(home) - realised home share, rolling Poisson; " + how_citl},
+        "citl_draw_mean10": {**citl10["D"], "n": 3800, "how": "mean predicted P(draw) - realised draw share; " + how_citl},
+        "citl_away_mean10": {**citl10["A"], "n": 3800, "how": "mean predicted P(away) - realised away share; " + how_citl},
         "citl_draw_pinnacle_closing_mean10": {**citl10_psc["D"], "n": int(seas["n_odds"].sum()),
                                               "how": "same for Pinnacle closing, " + pin_note},
-        "home_goals_pred_minus_realised_mean10": {**goals10["home"], "n": 3800, "how": "mean lambda - mean home goals; " + how_ll},
-        "away_goals_pred_minus_realised_mean10": {**goals10["away"], "n": 3800, "how": "mean mu - mean away goals; " + how_ll},
+        "home_goals_pred_minus_realised_mean10": {**goals10["home"], "n": 3800, "how": "mean lambda - mean home goals; " + how_goals},
+        "away_goals_pred_minus_realised_mean10": {**goals10["away"], "n": 3800, "how": "mean mu - mean away goals; " + how_goals},
         "home_goals_pred_minus_realised_2024_25_rolling": {
             "est": float(r24["res_home_goals"]), "ci": [float(r24["res_home_goals_lo"]), float(r24["res_home_goals_hi"])], "n": 380,
             "how": f"rolling mean lambda {r24['mean_lambda']:.3f} vs realised {r24['realised_home_goals']:.3f}; match bootstrap"},

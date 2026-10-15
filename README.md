@@ -18,6 +18,10 @@ read `results/numbers.json` and `results/home_advantage_by_season.csv`, which on
 writes, so on a fresh clone `make workstreams` fails if it runs first. `make all` alone reproduces
 the core pipeline; `results/SUMMARY.md` then says which workstream result files are missing. Python 3.11+; `requirements.txt` pins the exact versions the submission was executed with.
 
+**Submitting.** Upload the notebook together with `src/`, `data/`, `results/`, `scripts/`, `run_all.py`, `Makefile`
+and `requirements.txt`. The notebook reads the heavy results from `results/`; without that folder sections 4–8 print a
+placeholder naming the script to run.
+
 ## The question
 
 How many extra goals per match does playing at home give a Premier League team, and was that
@@ -106,7 +110,7 @@ matches of 2025-26 (none after 17 January 2026); Pinnacle statistics for that se
 
 | Path | Contents |
 |---|---|
-| `notebooks/final_report.ipynb` | **the report**, rubric order, every cell calls `src/`; `notebooks/exploration.ipynb` is the older thin notebook |
+| `notebooks/final_report.ipynb` | **the report**, rubric order, every cell calls `src/`; full results tables in its appendix |
 | `run_all.py` / `Makefile` | core pipeline driver (`make all`), workstream targets (`make workstreams`, `make notebook`) |
 | `scripts/run_timeseries.py` | home advantage 2005-06..2025-26, common-γ tests, crowd flag (E0, D1, SP1), block bootstraps, CI coverage, cold start, fit diagnostics (7 min) |
 | `scripts/run_rolling.py` | rolling-origin forecast evaluation 2016-17..2025-26, calibration, parameter-uncertainty bootstrap, betting test (10 min) |

@@ -57,23 +57,39 @@ def fmt_est(h: dict, nd=3, signed=False) -> str:
     return f.format(h["est"]) + " " + fmt_ci(h["ci"], nd, signed)
 
 
+def _num(v, nd: int = 4) -> str:
+    """Fixed-point with ``nd`` decimals, or scientific when that would print a nonzero value as 0."""
+    if v is None or not isinstance(v, (int, float)) or not np.isfinite(v):
+        return str(v)
+    if v != 0 and abs(v) < 0.5 * 10 ** -nd:
+        return f"{v:.1e}"
+    return f"{v:.{nd}f}"
+
+
+def _meta_line(meta: dict) -> str:
+    nb = meta.get("n_boot")
+    nb_s = ", ".join(f"{k.replace('_', ' ')} {v}" for k, v in nb.items()) if isinstance(nb, dict) else str(nb)
+    rt = meta.get("runtime_seconds")
+    rt_s = f"{float(rt):.0f} s" if isinstance(rt, (int, float)) else str(rt)
+    return (f"seed {meta.get('seed')}, generated {meta.get('generated')}, runtime {rt_s}, bootstrap replicates {nb_s}. "
+            f"{meta.get('description', '')}")
+
+
 def headline_markdown(res: dict, title: str = "", nd: int = 4, contains=None) -> str:
     """Render a results file's ``headline`` dict (and its ``meta``) as a Markdown table."""
     meta = res.get("meta", {})
     lines = []
     if title:
         lines.append(f"**{title}**  ")
-    lines.append(f"seed {meta.get('seed')}, generated {meta.get('generated')}, runtime "
-                 f"{meta.get('runtime_seconds')} s, bootstrap replicates {meta.get('n_boot')}. "
-                 f"{meta.get('description', '')}")
+    lines.append(_meta_line(meta))
     lines += ["", "| quantity | estimate | 95% CI | n | how obtained |", "|---|---|---|---|---|"]
     for k, h in res.get("headline", {}).items():
         if contains is not None and not any(c in k for c in contains):
             continue
         est = h.get("est")
         ci = h.get("ci") or [np.nan, np.nan]
-        est_s = f"{est:.{nd}f}" if isinstance(est, (int, float)) and est is not None else str(est)
-        ci_s = fmt_ci([np.nan if c is None else c for c in ci], nd)
+        est_s = _num(est, nd)
+        ci_s = "[" + ", ".join(_num(np.nan if c is None else c, nd) for c in ci) + "]"
         how = str(h.get("how", "")).replace("|", "\\|")
         lines.append(f"| {k} | {est_s} | {ci_s} | {h.get('n')} | {how} |")
     return "\n".join(lines)
@@ -87,6 +103,32 @@ def results_section(root: str, name: str, title: str = "", contains=None) -> str
                 f"and re-run this notebook.**")
     return headline_markdown(res, title or f"results/{name}.json (written by {RESULT_SOURCES.get(name, '?')})",
                              contains=contains)
+
+
+def headline_table(root: str, name: str, rows, nd: int = 4) -> str:
+    """A short Markdown table of selected headline entries with plain labels.
+
+    ``rows`` is a list of (key, label) or (key, label, "p"); with "p" the p-value quoted in the
+    entry's ``how`` string is appended to the label.  The full entries, with how each was
+    obtained, are in the appendix (``results_section``) and in ``results/<name>.json``.
+    """
+    res = load_results(root, name)
+    if res is None:
+        return results_section(root, name)
+    lines = ["| quantity | estimate | 95% interval | n |", "|---|---|---|---|"]
+    for row in rows:
+        key, label = row[0], row[1]
+        h = res["headline"].get(key)
+        if h is None:
+            lines.append(f"| {label} | (missing: {key}) | | |")
+            continue
+        if len(row) > 2 and row[2] == "p":
+            label = f"{label}; p = {_p_from_how(res, key)}"
+        ci = "[" + ", ".join(_num(c, nd) for c in h["ci"]) + "]"
+        lines.append(f"| {label} | {_num(h['est'], nd)} | {ci} | {h.get('n')} |")
+    lines += ["", f"Source: `results/{name}.json` ({RESULT_SOURCES.get(name, '?')}); every entry with how it was "
+                  f"obtained is in the appendix."]
+    return "\n".join(lines)
 
 
 def show_md(text: str):
@@ -258,6 +300,39 @@ def home_advantage_figure(root: str, numbers: dict):
 
 # ------------------------------------------------------- notebook: section helpers
 
+def md_constraint_choice(numbers: dict, season: str = "2023-24") -> str:
+    """Why one identifiability constraint, not the brief's two: the second one costs likelihood."""
+    tc = numbers["diagnostics"]["two_constraint_fit"]
+    g1 = numbers["poisson_fit_by_season"][season]["gamma"]
+    pen = tc["loglik_penalty_by_season"]
+    return (f"**Why one constraint, not two.** The brief also suggested fixing the geometric mean of β to 1. That second "
+            f"constraint removes a degree of freedom the likelihood does identify: it forces the geometric mean of the away "
+            f"rate μ to 1 and pushes the league's away-scoring level into γ. In {season} it gives γ = "
+            f"{tc['gamma_by_season'][season]:.2f} instead of {g1:.2f}, with a log-likelihood {pen[season]:.0f} nats worse; "
+            f"over the 11 seasons the loss ranges {min(pen.values()):.1f}..{max(pen.values()):.1f} nats "
+            f"(exact refits, no sampling error). The report therefore uses the single constraint above.")
+
+
+def bootstrap_strengths(design: Design, fit, n_boot: int, rng) -> pd.DataFrame:
+    """Team strengths alpha (attack) and beta (defensive weakness) with 95% percentile bootstrap intervals.
+
+    Resample matches with replacement, refit (warm-started), and take percentiles of each
+    team's alpha and beta under the same constraint (geometric mean of alpha = 1).
+    """
+    spec = Spec(design)
+    m = design.n_matches
+    A = np.empty((n_boot, design.n_teams))
+    B = np.empty((n_boot, design.n_teams))
+    for b in range(n_boot):
+        w = np.bincount(rng.integers(0, m, m), minlength=m).astype(float)
+        fb = fit_poisson(design, weights=w, x0=fit.theta, spec=spec)
+        A[b], B[b] = np.exp(fb.log_alpha), np.exp(fb.log_beta)
+    tab = pd.DataFrame({"team": design.teams, "alpha": np.exp(fit.log_alpha),
+                        "alpha_lo": np.percentile(A, 2.5, axis=0), "alpha_hi": np.percentile(A, 97.5, axis=0),
+                        "beta": np.exp(fit.log_beta),
+                        "beta_lo": np.percentile(B, 2.5, axis=0), "beta_hi": np.percentile(B, 97.5, axis=0)})
+    return tab.sort_values("alpha", ascending=False).set_index("team")
+
 def outcome_frequencies(core: pd.DataFrame):
     """(per-season H/D/A shares with n, pooled dict) in the form ``figures.fig1_baselines`` takes."""
     freq = core.groupby("season", observed=True)["outcome"].value_counts(normalize=True).unstack()[list("HDA")]
@@ -273,22 +348,36 @@ def _prop_ci(p, n):
     return [p - 1.96 * se, p + 1.96 * se]
 
 
-def md_question(numbers: dict, freq: pd.DataFrame, pooled: dict) -> str:
-    """The headline answer to the question, every number with its interval and how it was obtained."""
-    pg, cv = numbers["pooled_gamma"], numbers["covid_comparison"]
-    nb = numbers["meta"]["n_boot_per_season"]
+def md_question(root: str, numbers: dict, freq: pd.DataFrame, pooled: dict) -> str:
+    """The answer to the question: the report's one headline, then the robustness checks, each with its interval."""
+    ts = load_results(root, "timeseries")
+    pg, pgx, cv = numbers["pooled_gamma"], numbers["pooled_gamma_excluding_2020_21"], numbers["covid_comparison"]
     hc = freq.loc["2020-21"]
-    return "\n".join([
-        f"- **Extra home goals per match, 11 seasons pooled:** {pg['ha_goals']:.3f} {fmt_ci(pg['ha_goals_ci'])} "
-        f"(γ̂ = {pg['gamma']:.3f} {fmt_ci(pg['gamma_ci'])}; one γ shared by all seasons, season-specific strengths, "
-        f"{pg['n_boot']} season-stratified bootstrap refits; this is a common-γ interval).",
-        f"- **2020-21 (closed doors):** γ̂ = {cv['gamma']:.3f} {fmt_ci(cv['gamma_ci'])}, extra home goals "
-        f"{cv['ha_goals']:.3f} {fmt_ci(cv['ha_goals_ci'])} ({nb} match-resampling refits).",
-        f"- **Difference 2020-21 minus the mean of the other ten seasons:** {cv['gamma_difference_2020_21_minus_mean_others']:+.3f} "
-        f"{fmt_ci(cv['gamma_difference_ci'], signed=True)} (difference of independent per-season bootstrap draws).",
-        f"- Home-win share 2020-21 {hc['H']:.3f} {fmt_ci(_prop_ci(hc['H'], hc['n']))} vs pooled {pooled['H']:.3f} "
-        f"{fmt_ci(_prop_ci(pooled['H'], pooled['n']))} (binomial normal-approximation intervals).",
-    ])
+    lines = []
+    if ts:
+        lines += [
+            f"- **Answer (the headline used throughout): {_h(ts, 'extra_home_goals_common_20_crowd_seasons', 2)} extra home "
+            f"goals per match**, γ = {_h(ts, 'common_gamma_20_crowd_seasons', 3)} (one γ shared by the 20 seasons with crowds, "
+            f"2005-06..2025-26 except 2020-21, season-specific strengths; 2,000 season-stratified bootstrap refits).",
+            f"- **2020-21 (closed doors):** γ = {_h(ts, 'gamma_2020_21', 3)}, extra home goals "
+            f"{_h(ts, 'extra_home_goals_2020_21', 3, True)} (2,000 match-resampling refits).",
+        ]
+    lines += [
+        f"- **Was 2020-21 lower?** Yes: γ(2020-21) minus the mean γ of the other ten core seasons is "
+        f"{cv['gamma_difference_2020_21_minus_mean_others']:+.3f} {fmt_ci(cv['gamma_difference_ci'], signed=True)} "
+        f"(in units of γ, not goals; difference of independent per-season bootstrap draws). Whether crowds are the "
+        f"reason is a different question, taken up in sections 4 and 8.",
+        f"- Raw shares say the same: home-win share 2020-21 {hc['H']:.3f} {fmt_ci(_prop_ci(hc['H'], hc['n']))} vs "
+        f"{pooled['H']:.3f} {fmt_ci(_prop_ci(pooled['H'], pooled['n']))} over the 11 core seasons (binomial "
+        f"normal-approximation intervals).",
+        "",
+        f"*Robustness, not the headline:* the same common-γ fit on the 11 core seasons 2015-16..2025-26 gives "
+        f"{pg['ha_goals']:.3f} {fmt_ci(pg['ha_goals_ci'])} extra goals (γ = {pg['gamma']:.3f} {fmt_ci(pg['gamma_ci'])}, "
+        f"2020-21 included) and γ = {pgx['gamma']:.3f} {fmt_ci(pgx['gamma_ci'])} with 2020-21 left out "
+        f"({pg['n_boot']} season-stratified refits). These are lower than the headline because home advantage has "
+        f"declined since 2005-06 (section 4).",
+    ]
+    return "\n".join(lines)
 
 
 def md_assumption_evidence(core: pd.DataFrame, numbers: dict, dc, by_season) -> str:
@@ -319,15 +408,17 @@ def md_assumption_evidence(core: pd.DataFrame, numbers: dict, dc, by_season) -> 
     return "\n".join(lines)
 
 
-def md_estimation(numbers: dict, demo: dict, fits: dict) -> str:
+def md_estimation(root: str, numbers: dict, demo: dict, fits: dict) -> str:
     stored = numbers["poisson_fit_by_season"]["2020-21"]
     pgx = numbers["pooled_gamma_excluding_2020_21"]
     return "\n".join([
         f"- Live {demo['n_boot']}-replicate bootstrap of 2020-21 γ̂ (seed printed above): {fits['2020-21'][1].gamma:.3f} "
         f"{fmt_ci(demo['ci'])}, SE {demo['se']:.3f}; the stored {numbers['meta']['n_boot_per_season']}-replicate interval "
         f"is {fmt_ci([stored['gamma_lo'], stored['gamma_hi']])}, SE {stored['gamma_se']:.3f}.",
-        f"- Common γ over the ten crowd seasons (2020-21 excluded): {pgx['gamma']:.3f} {fmt_ci(pgx['gamma_ci'])} "
-        f"({numbers['meta']['n_boot_pooled']} season-stratified refits).",
+        f"- Robustness check, not the headline: common γ over the ten core crowd seasons 2015-16..2025-26 (2020-21 "
+        f"excluded) is {pgx['gamma']:.3f} {fmt_ci(pgx['gamma_ci'])} ({numbers['meta']['n_boot_pooled']} season-stratified "
+        f"refits), against the headline {_h(load_results(root, 'timeseries'), 'common_gamma_20_crowd_seasons', 3)} over "
+        f"the 20 crowd seasons since 2005-06; the difference is the decline over time.",
     ])
 
 
@@ -348,9 +439,13 @@ def dc_gradient_check(design: Design, fit, rng, rho=-0.05, scale=0.05) -> float:
 
 
 def md_verification(skellam_err: float, skellam_err10: float, ident: pd.DataFrame, grad_p: float, grad_dc: float,
-                    dc_checks: dict, rec: dict, numbers: dict) -> str:
+                    dc_checks: dict, rec: dict, numbers: dict, root: str | None = None) -> str:
     r = numbers["verification"]["recovery_truth_2023_24"]
     mcse = rec["gamma_sd"] / np.sqrt(rec["n_sims"])
+    ts = load_results(root, "timeseries") if root else None
+    second = (f" `scripts/run_timeseries.py` repeats the study with its own seeds (another 200 seasons) and gets "
+              f"{_h(ts, 'recovery_gamma_bias_warm_start', 4, True)}; the two runs agree within Monte Carlo error."
+              if ts else "")
     return "\n".join([
         f"- Score grid vs Skellam closed form (200 random rate pairs): max |difference| {skellam_err:.1e} on a 0..40 grid, "
         f"{skellam_err10:.1e} on the 0..10 grid used (truncation, before renormalising).",
@@ -361,8 +456,8 @@ def md_verification(skellam_err: float, skellam_err10: float, ident: pd.DataFram
         f"on {dc_checks['n_matches']} simulated matches is recovered as {dc_checks['rho_hat']:+.3f} "
         f"{fmt_ci(dc_checks['rho_ci'], signed=True)} ({dc_checks['n_boot']} bootstrap refits).",
         f"- Recovery on {rec['n_sims']} simulated 2023-24 seasons: γ̂ bias {rec['gamma_bias']:+.4f} ± {1.96 * mcse:.4f} "
-        f"(95% Monte Carlo interval), recovery SD {rec['gamma_sd']:.3f} (stored run: bias {r['gamma_bias']:+.4f}). This checks "
-        f"the optimiser under the model, not the model.",
+        f"(95% Monte Carlo interval), recovery SD {rec['gamma_sd']:.3f} (stored run: bias {r['gamma_bias']:+.4f}).{second} "
+        f"This checks the optimiser under the model, not the model.",
     ])
 
 
@@ -558,8 +653,8 @@ def md_what_changed(root: str, numbers: dict) -> str:
     """Section 7: Milestone 2 feedback and the three critique streams, each taken up or set aside."""
     ts, ro, dc = load_results(root, "timeseries"), load_results(root, "rolling"), load_results(root, "dixon_coles")
     pre = numbers["preliminary"]
-    q10, q11, q20 = (_p_from_how(ts, k) for k in ("cochran_q_10_core_crowd_seasons", "cochran_q_11_core_seasons",
-                                                   "cochran_q_20_crowd_seasons"))
+    q10, lr11, q20 = (_p_from_how(ts, k) for k in ("cochran_q_10_core_crowd_seasons", "lr_common_gamma_11_core_seasons",
+                                                    "cochran_q_20_crowd_seasons"))
     return "\n".join([
         "**Milestone 2 feedback.** The written comment on the M2 presentation (Andrew Cheng, Canvas) was: "
         "*\"Great presentation! Simple benchmarks would be appreciated.\"* The brief for the final adds three "
@@ -599,8 +694,8 @@ def md_what_changed(root: str, numbers: dict) -> str:
         "- The Fig 5 right-panel title, the duplicated home-advantage figure (γ and extra goals are one finding, by the "
         "identity), and the variance-vs-mean caption that was not a dispersion test: fixed; the dispersion is now a "
         f"Pearson statistic ({_h(dc, 'pearson_dispersion_pooled', 3)} pooled, Poisson range in the interval column).",
-        f"- \"One γ for all seasons\": the LR test (p = {q11}) and Cochran's Q (p = {q10}) disagreed because one included "
-        f"2020-21 and the other did not. Reconciled in section 4; over 2005-06..2025-26 a common γ is rejected even "
+        f"- \"One γ for all seasons\": the LR test on the 11 core seasons (p = {lr11}) and Cochran's Q on the "
+        f"10 crowd seasons (p = {q10}) disagreed because the first included 2020-21 and the second did not. Reconciled in section 4; over 2005-06..2025-26 a common γ is rejected even "
         f"without 2020-21 (Q p = {q20}) because home advantage declines by about 9% per decade.",
         "- Crowd status is a match-level condition (92 restart matches in 2019-20; limited crowds in Dec 2020 and May 2021): "
         "flagged by date in section 4, with the statement that attendance is not in the data.",
@@ -724,7 +819,7 @@ def md_summary(root: str, numbers: dict) -> str:
         f"{_h(ts, 'ci_coverage_percentile', 3)} of simulated seasons." if ts else
         "- **Verification**: see section 5 (results/timeseries.json missing).",
         "",
-        "Every number above is rendered from the results files named in the table below and carries its 95% interval; "
+        "Every number above carries its 95% interval and is rendered from the results files listed just below; "
         "sections 1–9 follow in the rubric's order.",
     ]
     return "\n".join(lines)
