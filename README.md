@@ -7,13 +7,16 @@ connection is needed):
 
 ```bash
 pip install -r requirements.txt   # exact versions, incl. nbconvert/ipykernel for the notebook
-make workstreams  # the three workstream scripts: about 7 + 10 + 1 minutes on a laptop
-make all          # = python3 run_all.py (25 s)  followed by  python3 -m pytest -q tests (2 s)
+make run          # = python3 run_all.py (25 s); writes results/numbers.json, which the workstreams read
+make workstreams  # the three workstream scripts: about 10 + 15 + 2 minutes on a laptop
+make all          # run_all.py again (so results/SUMMARY.md quotes the workstreams), then pytest (2 s)
 make notebook     # execute notebooks/final_report.ipynb in place from a clean kernel (10 s)
 ```
 
-`make all` alone reproduces the core pipeline; `results/SUMMARY.md` then says which workstream
-result files are missing. Python 3.11+; `requirements.txt` pins the exact versions the submission was executed with.
+or all four steps in that order with `make reproduce`. The order matters: the workstream scripts
+read `results/numbers.json` and `results/home_advantage_by_season.csv`, which only `run_all.py`
+writes, so on a fresh clone `make workstreams` fails if it runs first. `make all` alone reproduces
+the core pipeline; `results/SUMMARY.md` then says which workstream result files are missing. Python 3.11+; `requirements.txt` pins the exact versions the submission was executed with.
 
 ## The question
 
