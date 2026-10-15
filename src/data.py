@@ -233,15 +233,20 @@ def build_matches(seasons=None, write: bool = True, verbose: bool = True) -> pd.
     return df
 
 
-def load_matches(seasons=None) -> pd.DataFrame:
-    """Load data/processed/matches.csv, building it if necessary."""
+def load_matches(seasons=None, verbose: bool = True) -> pd.DataFrame:
+    """Load data/processed/matches.csv, building it if necessary.
+
+    A build for a subset of the seasons is not written to disk, so it cannot overwrite the
+    full matches.csv or shrink data/team_names.csv.
+    """
     path = os.path.join(PROCESSED_DIR, "matches.csv")
     if os.path.exists(path):
         df = pd.read_csv(path, parse_dates=["date"])
         df["outcome"] = pd.Categorical(df["outcome"], categories=["H", "D", "A"])
         if seasons is None or set(seasons) <= set(df["season"]):
             return df if seasons is None else df[df["season"].isin(seasons)].reset_index(drop=True)
-    return build_matches(seasons)
+    full = seasons is None or set(ALL_SEASONS) <= set(seasons)
+    return build_matches(seasons, write=full, verbose=verbose)
 
 
 if __name__ == "__main__":

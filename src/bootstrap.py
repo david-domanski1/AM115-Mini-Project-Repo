@@ -52,12 +52,13 @@ def bootstrap_fit(design: Design, fit: Fit, n_boot: int = 500, seed: int = SEED,
 
 
 def bootstrap_metrics(prob_sets: dict, outcome_idx: np.ndarray, metric, n_boot: int = 2000,
-                      seed: int = SEED) -> dict:
+                      seed: int = SEED, rng=None) -> dict:
     """Paired bootstrap (same resampled matches for every forecaster) of a per-match metric.
 
-    ``metric(probs, outcome_idx)`` must return a scalar mean over matches.
+    ``metric(probs, outcome_idx)`` must return a scalar mean over matches.  Pass ``rng``
+    (a numpy Generator) to control the random stream directly; otherwise one is made from ``seed``.
     """
-    rng = np.random.default_rng(seed)
+    rng = np.random.default_rng(seed) if rng is None else rng
     m = len(outcome_idx)
     out = {k: np.empty(n_boot) for k in prob_sets}
     for b in range(n_boot):

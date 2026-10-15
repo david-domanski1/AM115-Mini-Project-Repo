@@ -14,13 +14,14 @@ def simulate_scores(log_alpha, log_beta, log_gamma, home, away, rng):
 
 
 def recovery_study(design: Design, log_alpha, log_beta, log_gamma, n_sims: int = 200,
-                   seed: int = SEED, constraint: str = "alpha", verbose: bool = False) -> dict:
+                   seed: int = SEED, constraint: str = "alpha", verbose: bool = False, rng=None) -> dict:
     """Simulate ``n_sims`` seasons on the fixture list of ``design`` and refit each.
 
     The planted log-alpha must satisfy the same constraint as the fit (mean 0 within
-    each group) for the comparison to be meaningful.
+    each group) for the comparison to be meaningful.  Pass ``rng`` (a numpy Generator) to
+    control the random stream directly; otherwise one is made from ``seed``.
     """
-    rng = np.random.default_rng(seed)
+    rng = np.random.default_rng(seed) if rng is None else rng
     log_alpha = np.asarray(log_alpha, float)
     log_beta = np.asarray(log_beta, float)
     n = design.n_teams

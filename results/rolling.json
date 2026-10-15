@@ -110,7 +110,7 @@
       ],
       "se": 0.0056128640824157075,
       "n": 3800,
-      "how": "multi-class Brier (0..2); mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "multi-class Brier (0..2); mean over the 10 test seasons of the per-season mean Brier score; 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "brier_base_rate_mean10": {
       "est": 0.6450036073614369,
@@ -120,7 +120,7 @@
       ],
       "se": 0.0031905855840148015,
       "n": 3800,
-      "how": "multi-class Brier (0..2); mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "multi-class Brier (0..2); mean over the 10 test seasons of the per-season mean Brier score; 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "brier_pinnacle_prematch_mean10": {
       "est": 0.561626968760266,
@@ -130,7 +130,7 @@
       ],
       "se": 0.005815351578011646,
       "n": 3630,
-      "how": "multi-class Brier; Pinnacle and the paired Poisson values use the 3,630 matches with odds (2025-26: 210 of 380); mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "multi-class Brier; Pinnacle and the paired Poisson values use the 3,630 matches with odds (2025-26: 210 of 380); mean over the 10 test seasons of the per-season mean Brier score; 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "poisson_minus_base_logloss_mean10": {
       "est": -0.10010002549191746,
@@ -287,7 +287,7 @@
       ],
       "se": 0.007514740990074582,
       "n": 3800,
-      "how": "mean predicted P(home) - realised home share, rolling Poisson; mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "mean predicted P(home) - realised home share, rolling Poisson; mean over the 10 test seasons of the per-season mean difference (predicted probability - realised share); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "citl_draw_mean10": {
       "est": -0.002904775366127392,
@@ -297,7 +297,7 @@
       ],
       "se": 0.006801933121002244,
       "n": 3800,
-      "how": "mean predicted P(draw) - realised draw share; mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "mean predicted P(draw) - realised draw share; mean over the 10 test seasons of the per-season mean difference (predicted probability - realised share); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "citl_away_mean10": {
       "est": 0.006853806874109095,
@@ -307,7 +307,7 @@
       ],
       "se": 0.006824123372716998,
       "n": 3800,
-      "how": "mean predicted P(away) - realised away share; mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "mean predicted P(away) - realised away share; mean over the 10 test seasons of the per-season mean difference (predicted probability - realised share); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "citl_draw_pinnacle_closing_mean10": {
       "est": 0.009565291058212688,
@@ -327,7 +327,7 @@
       ],
       "se": 0.020060071808118956,
       "n": 3800,
-      "how": "mean lambda - mean home goals; mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "mean lambda - mean home goals; mean over the 10 test seasons of the per-season mean difference (goals per match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "away_goals_pred_minus_realised_mean10": {
       "est": -0.02043512051387778,
@@ -337,7 +337,7 @@
       ],
       "se": 0.0181487346209476,
       "n": 3800,
-      "how": "mean mu - mean away goals; mean over the 10 test seasons of the per-season mean log-loss (nats/match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
+      "how": "mean mu - mean away goals; mean over the 10 test seasons of the per-season mean difference (goals per match); 95% CI from 2000 match-resampling bootstrap replicates per season, averaged across seasons replicate by replicate"
     },
     "home_goals_pred_minus_realised_2024_25_rolling": {
       "est": 0.09426721121690383,
